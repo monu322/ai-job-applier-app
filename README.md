@@ -1,175 +1,83 @@
-# Astra Apply - AI Job Application Mobile App
+# Astra Apply - AI Job Application Platform
 
-A React Native mobile app built with Expo that helps users apply to jobs worldwide with an AI-powered agent.
-
-## Features Implemented
-
-### ✅ Core Screens
-- **Splash Screen** - Animated intro with floating logo and pulse effects
-- **Onboarding** - CV upload and LinkedIn import options
-- **CV Analysis** - AI processing animation with scanning effects
-- **Profile Summary** - User persona with AI insights and action buttons
-- **Job Discovery Feed** - List view of job opportunities with match scores
-- **Job Details** - Comprehensive job information with AI match analysis
-- **Tab Navigation** - 5-tab bottom navigation (Home, Market, AI Agent, Applied, Profile)
-
-### 🎨 Design Features
-- Dark theme with glass morphism effects
-- Smooth animations using React Native Reanimated
-- Gradient backgrounds and glow effects
-- Match percentage badges
-- Visa sponsorship indicators
-- Professional UI matching design references
-
-### 📦 Tech Stack
-- **React Native** with **Expo SDK 54**
-- **TypeScript** for type safety
-- **Expo Router** for file-based navigation
-- **NativeWind** (TailwindCSS for React Native)
-- **React Native Reanimated** for animations
-- **Zustand** for state management
-- **Expo Linear Gradient** for gradients
-- **Expo Blur** for glass morphism
+A comprehensive job application platform powered by AI, featuring a React Native mobile app, web application, and backend API.
 
 ## Project Structure
 
 ```
-app/
-├── (tabs)/              # Tab navigation
-│   ├── index.tsx       # Home/Discovery Feed
-│   ├── market.tsx      # Global Job Market (placeholder)
-│   ├── ai-agent.tsx    # AI Agent (placeholder)
-│   ├── applied.tsx     # Applied Jobs (placeholder)
-│   └── profile.tsx     # Profile (placeholder)
-├── job-details/[id].tsx # Dynamic job details
-├── splash.tsx          # Animated splash screen
-├── onboarding.tsx      # CV upload/LinkedIn
-├── cv-analysis.tsx     # AI analysis animation
-├── profile-summary.tsx # User persona summary
-└── _layout.tsx         # Root layout
-
-lib/
-├── stores/             # Zustand stores
-│   ├── userStore.ts   # User profile state
-│   └── jobStore.ts    # Jobs and applications state
-├── types/              # TypeScript types
-│   ├── job.types.ts
-│   └── user.types.ts
-└── data/               # Mock data
-    ├── mockJobs.ts
-    └── mockProfile.ts
-
-components/
-└── ui/
-    └── GlassPanel.tsx  # Reusable glass effect component
+job-applier-app/
+├── mobile/          # React Native mobile app (Expo)
+├── backend/         # Backend API (Coming soon)
+├── web/             # Web application (Coming soon)
+└── design-reference/  # UI/UX design references
 ```
 
-## Getting Started
+## 📱 Mobile App (React Native + Expo)
 
-### Prerequisites
-- Node.js (v16 or higher)
-- npm or yarn
-- Expo CLI
-- iOS Simulator (Mac) or Android Emulator
+**Location:** `/mobile`
 
-### Installation
+A React Native mobile app built with Expo that helps users apply to jobs worldwide with an AI-powered agent.
 
-1. Navigate to project directory:
+### Features:
+- Multi-persona system (create personas from different CVs)
+- AI-powered job discovery with swipe/list views
+- Global job market with interactive map
+- Application activity dashboard
+- Real-time job matching
+- Dark theme with glass morphism UI
+
+### Tech Stack:
+- React Native + Expo SDK 54
+- TypeScript
+- Expo Router (file-based navigation)
+- NativeWind (TailwindCSS)
+- React Native Reanimated
+- Zustand (state management)
+
+### Getting Started:
 ```bash
-cd /Users/monujohn/Documents/projects/job-applier-app
-```
-
-2. Install dependencies (already done):
-```bash
+cd mobile
 npm install
-```
-
-### Running the App
-
-Start the Expo development server:
-```bash
 npx expo start
 ```
 
 Then press:
-- `i` for iOS Simulator
-- `a` for Android Emulator
-- Scan QR code with Expo Go app on your phone
+- `i` for iOS simulator
+- `a` for Android emulator
+- `w` for web browser
 
-## App Flow
+## 🌐 Web App (Coming Soon)
 
-1. **Splash Screen** (2.5s) → Auto-navigates to Onboarding
-2. **Onboarding** → Choose "Upload CV" or "Import from LinkedIn"
-3. **CV Analysis** (4s animation) → Shows AI processing with scanning effects
-4. **Profile Summary** → Displays user persona with 3 action buttons:
-   - **Find Jobs Now** → Navigates to job discovery feed
-   - **Job Market** → Navigates to market tab
-   - **Improve CV** → Shows "coming soon" alert
-5. **Job Discovery Feed** → List of jobs with match scores
-6. **Job Details** → Tap any job to see full details
-7. **Tab Navigation** → Switch between Home, Market, AI Agent, Applied, Profile
+**Location:** `/web`
 
-## Mock Data
+Web version of the Astra Apply platform.
 
-The app uses mock data for demonstration:
-- 8 sample jobs (Microsoft, Google, Netflix, Stripe, Amazon, Apple, Airbnb, Meta)
-- Sample user profile (Jason Mitchell - Product Manager)
-- Match scores range from 85-98%
-- Salary ranges $110K-$220K
+## ⚙️ Backend API (Coming Soon)
 
-## What's Next
+**Location:** `/backend`
 
-To complete the full app experience as per the design reference:
+Backend API for the Astra Apply platform.
 
-### Priority Features
-1. **Swipe View** - Tinder-style card swipe interface for jobs
-2. **AI Agent Active Screen** - Real-time application submission with progress
-3. **Human Verification Screen** - CAPTCHA/verification prompt
-4. **Application Success Screen** - Success dashboard with statistics
-5. **Global Job Market Map** - Interactive map visualization
+## 🎨 Design References
 
-### Additional Screens
-6. Market screen implementation
-7. Applied jobs dashboard
-8. Profile settings
-9. CV improvement suggestions
+**Location:** `/design-reference`
 
-### Enhancements
-- Gesture-based swipe cards with React Native Gesture Handler
-- More complex animations
-- API integration (when backend is ready)
-- Document picker for actual CV uploads
-- LinkedIn OAuth integration
+Contains HTML mockups and screenshots of all UI screens for reference.
 
-## Known Limitations
+## Development
 
-- Mock data only (no real API integration)
-- Some screens are placeholders
-- Swipe view not yet implemented
-- No actual CV parsing
-- No LinkedIn integration (UI only)
-- Apply button shows alert (not functional)
+### Prerequisites:
+- Node.js 16+
+- npm or yarn
+- Expo CLI
+- iOS Simulator (Mac) or Android Emulator
 
-## Development Notes
-
-- Uses `--legacy-peer-deps` due to React Native and Tailwind peer dependency conflicts
-- NativeWind configured with custom dark theme colors
-- All animations use React Native Reanimated for 60fps performance
-- Safe area insets handled properly for iOS notch
-
-## Troubleshooting
-
-### If app doesn't start:
-```bash
-# Clear cache and restart
-npx expo start --clear
-```
-
-### If styles don't work:
-Make sure `global.css` is imported in `app/_layout.tsx`
-
-### If icons don't show:
-@expo/vector-icons should be installed automatically with Expo
+### Mobile App Flow:
+1. Splash Screen → Onboarding → CV Analysis → Persona Summary
+2. Home Dashboard (with persona selector)
+3. AI Agent (Swipe/List job discovery)
+4. Global Job Market (with zoomable map)
+5. Profile & Settings
 
 ## License
 
@@ -177,4 +85,4 @@ This is a portfolio/demo project.
 
 ---
 
-Built with ❤️ using React Native & Expo
+Built with ❤️ using React Native, Expo & AI
