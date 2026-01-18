@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Astra Apply - Human Verification</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3b82f6", // Vibrant blue consistent with the "command center" feel
+              "background-light": "#f8fafc",
+              "background-dark": "#020617", // Deep navy/black space theme
+              "card-dark": "rgba(30, 41, 59, 0.7)",
+              "accent-gold": "#fbbf24",
+            },
+            fontFamily: {
+              sans: ["Plus Jakarta Sans", "sans-serif"],
+              display: ["Space Grotesk", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "1rem",
+              'xl': '1.5rem',
+              '2xl': '2rem',
+            },
+          },
+        },
+      };
+    </script>
+<style>
+        body {
+            background: radial-gradient(circle at top right, #1e293b 0%, #020617 100%);
+            min-height: 100vh;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glow-shadow {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+        .star-field {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px);
+            background-size: 550px 550px;
+            opacity: 0.1;
+            z-index: 0;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-sans text-slate-900 dark:text-slate-100 selection:bg-primary/30">
+<div class="star-field"></div>
+<div class="relative z-10 max-w-md mx-auto min-h-screen flex flex-col p-6">
+<div class="h-12 flex justify-between items-center px-2">
+<span class="text-sm font-semibold">9:41</span>
+<div class="flex gap-1.5 items-center">
+<span class="material-icons-round text-sm">signal_cellular_alt</span>
+<span class="material-icons-round text-sm">wifi</span>
+<span class="material-icons-round text-sm">battery_full</span>
+</div>
+</div>
+<header class="mt-4 mb-8 flex items-center justify-between">
+<button class="w-10 h-10 flex items-center justify-center rounded-full glass-panel hover:bg-white/10 transition-all">
+<span class="material-icons-round text-white">chevron_left</span>
+</button>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+<span class="text-xs font-bold tracking-widest uppercase opacity-70">Astra Agent Active</span>
+</div>
+<div class="w-10"></div>
+</header>
+<main class="flex-1 flex flex-col items-center">
+<div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mb-6 relative">
+<div class="absolute inset-0 bg-primary rounded-full blur-xl opacity-20"></div>
+<span class="material-icons-round text-primary text-4xl">fingerprint</span>
+</div>
+<h1 class="text-3xl font-display font-bold text-center mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                Human Verification Needed
+            </h1>
+<p class="text-center text-slate-400 dark:text-slate-400 px-4 leading-relaxed mb-8">
+                This site needs a quick human check. Please complete it to continue the automation.
+            </p>
+<div class="w-full glass-panel rounded-2xl overflow-hidden shadow-2xl relative">
+<div class="bg-slate-800/80 px-4 py-2 flex items-center justify-between border-b border-white/5">
+<div class="flex gap-1.5">
+<div class="w-2 h-2 rounded-full bg-red-500/50"></div>
+<div class="w-2 h-2 rounded-full bg-yellow-500/50"></div>
+<div class="w-2 h-2 rounded-full bg-green-500/50"></div>
+</div>
+<div class="flex items-center gap-1.5 bg-black/30 px-3 py-1 rounded-full border border-white/5">
+<span class="material-icons-round text-[10px] text-slate-500">lock</span>
+<span class="text-[10px] text-slate-400 font-medium">verify.careersite.com</span>
+</div>
+<div class="w-6"></div>
+</div>
+<div class="p-8 flex flex-col items-center bg-slate-900/50 aspect-video relative group cursor-pointer">
+<div class="w-full max-w-[240px] bg-white dark:bg-white p-4 rounded-sm shadow-lg flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 border-2 border-slate-300 rounded-sm"></div>
+<span class="text-slate-700 text-sm font-medium">I'm not a robot</span>
+</div>
+<div class="flex flex-col items-center">
+<img alt="reCAPTCHA logo" class="w-6 h-6 grayscale opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJl5Qs5UfRFylefS13BfkebShbc5ncvubso677_WxMviCBVrDsyGicVwGtH2qJOubTkW22rNEX-ygEMWV4bZRLmZn-hEGSYtkAuZLkLN1EI91RnH7-5rK0a2qexBYn4I4QCRsfkIjBKAxpFI7e-vGmNZih8Qsiq31e_utW1vnWSn5_sGEuAzY2oiOg_T5YiDpIzM4dAHPiv5gClskid_6yuBP7vzlxTh_u8GXEfO5SX1WmkwyiB3nRBhpY5fQyVXJdKmtlqX8imDeA"/>
+<span class="text-[8px] text-slate-500 mt-1">reCAPTCHA</span>
+</div>
+</div>
+<div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<span class="material-icons-round text-white text-3xl mb-2">open_in_new</span>
+<span class="text-white text-sm font-semibold">Tap to Open Browser</span>
+</div>
+<div class="absolute bottom-4 left-4 flex gap-2">
+<div class="h-1 w-8 bg-primary/30 rounded-full"></div>
+<div class="h-1 w-12 bg-primary/30 rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex items-start gap-3 bg-blue-500/5 dark:bg-blue-500/10 p-4 rounded-xl border border-primary/20">
+<span class="material-icons-round text-primary text-xl">security</span>
+<div class="text-xs text-slate-300 leading-normal">
+<span class="font-bold text-primary">Secure Automation Tunnel:</span> Your credentials remain encrypted. We only need your manual input to bypass this security gate.
+                </div>
+</div>
+</main>
+<footer class="mt-auto space-y-4 pb-8">
+<button class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-4 rounded-2xl glow-shadow transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+<span class="material-icons-round">launch</span>
+                Open Live View
+            </button>
+<button class="w-full glass-panel hover:bg-white/10 text-slate-300 font-semibold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+<span class="material-icons-round">play_arrow</span>
+                Continue AI Automation
+            </button>
+<p class="text-[10px] text-center text-slate-500 uppercase tracking-widest font-bold">
+                Astra Apply • Career Command Center v2.4
+            </p>
+</footer>
+</div>
+<div class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="fixed bottom-[-5%] right-[-5%] w-[40%] h-[40%] bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+</body></html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Job List Feed View - Astra Apply</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b8cee",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#0a0e17",
+                        "visa-gold": "#FFD700",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(25, 38, 51, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .visa-glow {
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.5);
+        }
+        .apply-glow {
+            box-shadow: 0 0 20px rgba(43, 140, 238, 0.4);
+        }
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(10, 14, 23, 0.8);
+        }
+        body {
+            background: radial-gradient(circle at top right, #161b22, #0a0e17);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white min-h-screen pb-24">
+<!-- Top App Bar -->
+<header class="sticky top-0 z-50 bg-background-dark/80 backdrop-blur-md">
+<div class="flex items-center p-4 justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 shrink-0 bg-primary rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-2xl">auto_awesome</span>
+</div>
+<div>
+<h2 class="text-white text-lg font-bold leading-none tracking-tight">Astra Apply</h2>
+<p class="text-[10px] text-primary font-bold uppercase tracking-widest mt-1">Command Center</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex size-10 items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-white text-xl">search</span>
+</button>
+<button class="flex size-10 items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition-colors relative">
+<span class="material-symbols-outlined text-white text-xl">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-primary rounded-full border border-background-dark"></span>
+</button>
+</div>
+</div>
+<!-- Sticky Filters -->
+<div class="flex gap-3 px-4 pb-4 overflow-x-auto no-scrollbar">
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary px-4 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-sm">tune</span>
+<p class="text-white text-sm font-medium">Relevance</p>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white/5 border border-white/10 px-4">
+<p class="text-white/80 text-sm font-medium">Salary</p>
+<span class="material-symbols-outlined text-white/60 text-sm">expand_more</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white/5 border border-white/10 px-4">
+<p class="text-white/80 text-sm font-medium">Visa Status</p>
+<span class="material-symbols-outlined text-white/60 text-sm">expand_more</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white/5 border border-white/10 px-4">
+<p class="text-white/80 text-sm font-medium">Remote</p>
+</button>
+</div>
+</header>
+<!-- Job Feed List -->
+<main class="p-4 space-y-4">
+<!-- Job Card 1 -->
+<div class="glass-card rounded-xl p-4 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="flex gap-4">
+<div class="size-12 rounded-lg bg-white/10 bg-center bg-no-repeat bg-cover border border-white/10" data-alt="Neuralink company minimalist vector logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCHh3UorfT81ne-C6kLkJZw6ap4T38FC-pfi5m1CjfXV041WZ_jvlNJ9VorJfC2e1Z3vMbRvWpPnT18Uw_mwctX9xqzjU-zQjzIKvUHt9S53y_xtSHmRErtRWpJb1skRm3wxVpLR2_0aKbWLmuiAL2A-qCam68m1fMWpQPwWj1ZbZoER8pXDTu-h3mZjHRdj8k91HnZKH8NvEz9GCOUjSPC3bcYcDQouLJvANv8aqvdMpSqSZxVwgxV32jZgQRm00g3j6IV2dtCs3Yw");'></div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2 mb-1">
+<span class="bg-visa-gold/10 text-visa-gold text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider visa-glow">Visa Sponsored</span>
+<span class="text-primary text-[10px] font-bold px-2 py-0.5 bg-primary/10 rounded uppercase tracking-wider">98% Match</span>
+</div>
+<h3 class="text-white text-base font-bold leading-tight">Senior AI Engineer</h3>
+<p class="text-white/50 text-sm font-medium mt-1">Neuralink • <span class="text-white/80">$180k - $240k</span></p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between mt-2 pt-4 border-t border-white/5">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full border-2 border-[#192633] bg-gray-600"></div>
+<div class="size-6 rounded-full border-2 border-[#192633] bg-gray-500"></div>
+<div class="flex items-center justify-center size-6 rounded-full border-2 border-[#192633] bg-primary/20 text-[8px] font-bold">+12</div>
+</div>
+<button class="apply-glow flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg font-bold text-sm transition-all active:scale-95">
+                    Apply Now
+                    <span class="material-symbols-outlined text-sm">arrow_outward</span>
+</button>
+</div>
+</div>
+<!-- Job Card 2 -->
+<div class="glass-card rounded-xl p-4 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="flex gap-4">
+<div class="size-12 rounded-lg bg-white/10 bg-center bg-no-repeat bg-cover border border-white/10" data-alt="Boston Dynamics yellow and black logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB1g6P9hn5T9GWkQGuD7_s-fVV1am_o6yc79rIXjP6Zppx7pwvQnm1bisXAASrgAYQT6BbFFafyvSPf8ztIHvH84V2tmkSxzXo0wzwt17Jolaw6xh8MSDY5g_I92XtV_7_S266sryZLR31dHiE7488K4SmR60YoTw-KywAKtb2m1R0e8kA3xd34flJ2cdj1rdWI4nb4w1svbSPLE_eBiiXueH-xru94iCdlNzGLfzZkgoMUqqY3UmXhs4pFePkjB3gaBhRkDFTCsuoD");'></div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2 mb-1">
+<span class="bg-visa-gold/10 text-visa-gold text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider visa-glow">Visa Sponsored</span>
+</div>
+<h3 class="text-white text-base font-bold leading-tight">Lead Robotics Researcher</h3>
+<p class="text-white/50 text-sm font-medium mt-1">Boston Dynamics • <span class="text-white/80">$210k</span></p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between mt-2 pt-4 border-t border-white/5">
+<div class="text-white/40 text-[11px]">Posted 2 hours ago</div>
+<button class="apply-glow flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg font-bold text-sm transition-all active:scale-95">
+                    Apply
+                    <span class="material-symbols-outlined text-sm">arrow_outward</span>
+</button>
+</div>
+</div>
+<!-- Job Card 3 -->
+<div class="glass-card rounded-xl p-4 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="flex gap-4">
+<div class="size-12 rounded-lg bg-white/10 bg-center bg-no-repeat bg-cover border border-white/10" data-alt="OpenAI minimalist logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAhyNksTzghvz7J5LeKS4cTpKF5rYy-Ui1vp3HE8pu8kfEY3iMhwG6-6Iq_lS6FA9TKnQPF-zy9xejcJxBuhvmjRxRm6pqAwRoHYNHS_khEQHYI6_Tsn5iLVAsTYFrhUWHM-qkulIiAL-F3ybzByfWtqnPpslujyBdbWrDce-2SfkjGY4jy7ZeRNrkV10L6yZHs0z2dqRIJk4sqaMLhE4qyaUjG7_k3YYTcwM3ouBSSYOptI-GQiVBAPbLCUg5dT5VnT9dDHXR9Sj08");'></div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2 mb-1">
+<span class="bg-visa-gold/10 text-visa-gold text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider visa-glow">Visa Sponsored</span>
+<span class="text-primary text-[10px] font-bold px-2 py-0.5 bg-primary/10 rounded uppercase tracking-wider">Top Tier</span>
+</div>
+<h3 class="text-white text-base font-bold leading-tight">ML Architect</h3>
+<p class="text-white/50 text-sm font-medium mt-1">OpenAI • <span class="text-white/80">$250k+</span></p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between mt-2 pt-4 border-t border-white/5">
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-primary text-sm">verified</span>
+<span class="text-white/40 text-[11px]">Verified Sponsor</span>
+</div>
+<button class="apply-glow flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg font-bold text-sm transition-all active:scale-95">
+                    Apply
+                    <span class="material-symbols-outlined text-sm">arrow_outward</span>
+</button>
+</div>
+</div>
+<!-- Job Card 4 -->
+<div class="glass-card rounded-xl p-4 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="flex gap-4">
+<div class="size-12 rounded-lg bg-white/10 bg-center bg-no-repeat bg-cover border border-white/10" data-alt="Tesla T logo red" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDBOwGscyeXl8Q5cx_v361Jrnc4d7emZw-afvmtLVJ4KlJ-nAoDo6U40HCMFNM6l5m8B_HGLqI6_jjrwlh1ZYlw8FEpiTv7vlMIDjZCSJD5bca19BTfRdHOJ5_Q7pFPj_dS_wJcGde-l9seQihWgGsabCnL80vHqSzeP1596HhOXRmtmQn0_e7OQPBhyG4AeDdFJgYh3M8SVfIbrfGRK9cRa4ELcG6bsUqJXOEsAPY-mzElHJGNTaODAqqgYFFzu-KUg-yBHlK8qdmX");'></div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2 mb-1">
+<span class="bg-visa-gold/10 text-visa-gold text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider visa-glow">Visa Sponsored</span>
+</div>
+<h3 class="text-white text-base font-bold leading-tight">Autopilot Systems Lead</h3>
+<p class="text-white/50 text-sm font-medium mt-1">Tesla • <span class="text-white/80">$195k</span></p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between mt-2 pt-4 border-t border-white/5">
+<div class="text-white/40 text-[11px]">Posted yesterday</div>
+<button class="apply-glow flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg font-bold text-sm transition-all active:scale-95">
+                    Apply
+                    <span class="material-symbols-outlined text-sm">arrow_outward</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation (iOS Style) -->
+<nav class="fixed bottom-0 left-0 right-0 nav-blur border-t border-white/10 px-6 pb-8 pt-3">
+<div class="flex justify-between items-center max-w-md mx-auto">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined fill-1">view_agenda</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Feed</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-white/40 hover:text-white/60 transition-colors">
+<span class="material-symbols-outlined">bookmark</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Saved</span>
+</button>
+<div class="relative -top-6">
+<button class="size-14 bg-primary rounded-2xl flex items-center justify-center shadow-xl shadow-primary/40 border-4 border-background-dark">
+<span class="material-symbols-outlined text-white text-3xl">bolt</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1 text-white/40 hover:text-white/60 transition-colors">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Track</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-white/40 hover:text-white/60 transition-colors">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
+</button>
+</div>
+</nav>
+<!-- Home Indicator Background Blur (iOS) -->
+<div class="fixed bottom-0 w-full h-8 bg-background-dark/80 backdrop-blur-md pointer-events-none"></div>
+</body></html>

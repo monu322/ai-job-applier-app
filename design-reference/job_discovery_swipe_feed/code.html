@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Astra Apply - Job Discovery</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Space+Grotesk:wght@500;700&amp;family=Material+Icons+Outlined&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3B82F6",
+              "background-light": "#F8FAFC",
+              "background-dark": "#050B18",
+              "card-dark": "rgba(255, 255, 255, 0.05)",
+              "gold": "#F59E0B",
+            },
+            fontFamily: {
+              display: ["Space Grotesk", "sans-serif"],
+              sans: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "12px",
+            },
+            backgroundImage: {
+              'nebula': "radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, rgba(5, 11, 24, 1) 100%)",
+              'card-glow': "linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(59, 130, 246, 0.05) 100%)",
+            }
+          },
+        },
+      };
+    </script>
+<style>
+      body {
+        font-family: 'Inter', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .ios-safe-top { padding-top: env(safe-area-inset-top); }
+      .ios-safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+      .glowing-edge {
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+      }
+      .gold-glow {
+        box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+      }
+      .card-stack-offset-1 { transform: translateY(12px) scale(0.95); opacity: 0.6; z-index: 10; }
+      .card-stack-offset-2 { transform: translateY(24px) scale(0.9); opacity: 0.3; z-index: 5; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen overflow-hidden select-none">
+<div class="max-w-md mx-auto h-screen relative flex flex-col bg-nebula overflow-hidden">
+<div class="h-12 ios-safe-top flex items-center justify-between px-6">
+<div class="flex items-center space-x-1">
+<span class="text-xs font-bold font-display tracking-widest text-primary">ASTRA APPLY</span>
+</div>
+<div class="flex items-center space-x-4">
+<span class="material-icons-outlined text-xl opacity-70">notifications</span>
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold border-2 border-white/20">JM</div>
+</div>
+</div>
+<header class="px-6 py-4">
+<h1 class="text-2xl font-display font-bold">Discovery Feed</h1>
+<p class="text-sm text-slate-400">AI finding your best matches...</p>
+</header>
+<div class="flex-1 relative px-6 py-4 flex flex-col justify-center">
+<div class="absolute inset-x-6 top-1/2 -translate-y-1/2 card-stack-offset-2 glass-card h-[460px] rounded-3xl"></div>
+<div class="absolute inset-x-6 top-1/2 -translate-y-1/2 card-stack-offset-1 glass-card h-[460px] rounded-3xl"></div>
+<div class="relative z-20 glass-card rounded-[32px] h-[480px] flex flex-col overflow-hidden glowing-edge bg-card-glow transition-transform duration-300 active:scale-95">
+<div class="absolute top-6 left-6 z-30">
+<div class="bg-primary/20 backdrop-blur-md border border-primary/30 px-3 py-1 rounded-full flex items-center space-x-1">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-xs font-bold text-primary">98% Match</span>
+</div>
+</div>
+<div class="h-1/2 relative">
+<img alt="Modern office space" class="w-full h-full object-cover opacity-50 grayscale mix-blend-overlay" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAY-XJbZFAJvtA471XRxKfrPxO0zQsDe-1MNhxOvEi8cuBOZE4nX4w9VNq9L2h70r-XlUDAYxniLFk4Jo-LF8H5DhidTwuNfv3B8MdBrF8FiTKguqz130HKpDm_8asWmmN7P7wYe4RUd7BCcSZO-7f5EElYt7K2oL0FHrA1XJgEr4vlNP1UCUOg2ucqndYeiJ0Xsx4I_XZ5Lo1z-oj2jnATaP_vR0zLo2YI50XdSC03eoiLOe5YJLT6zriOP-oIn2X_L3yEwAmTGwS_"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark/90 to-transparent"></div>
+<div class="absolute bottom-6 left-6">
+<div class="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 flex items-center justify-center mb-3">
+<span class="material-icons-outlined text-3xl text-primary">rocket_launch</span>
+</div>
+<h2 class="text-2xl font-display font-bold leading-tight">Senior Product Manager</h2>
+<p class="text-slate-300 font-medium">Tech Solutions</p>
+</div>
+</div>
+<div class="p-6 pt-2 flex flex-col flex-1 justify-between">
+<div class="space-y-4">
+<div class="flex items-center space-x-4">
+<div class="flex flex-col">
+<span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Location</span>
+<span class="text-sm font-medium">London, UK (Remote)</span>
+</div>
+<div class="h-8 w-[1px] bg-white/10"></div>
+<div class="flex flex-col">
+<span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Base Salary</span>
+<span class="text-sm font-medium text-emerald-400">$130k - $160k</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="bg-gold/20 text-gold text-[11px] font-bold px-3 py-1 rounded-full border border-gold/30 gold-glow flex items-center">
+<span class="material-icons-outlined text-[14px] mr-1">public</span>
+                                Visa Sponsored
+                            </span>
+<span class="bg-white/5 text-slate-300 text-[11px] font-medium px-3 py-1 rounded-full border border-white/10">AI Strategy</span>
+<span class="bg-white/5 text-slate-300 text-[11px] font-medium px-3 py-1 rounded-full border border-white/10">Leadership</span>
+</div>
+<p class="text-xs text-slate-400 leading-relaxed line-clamp-3">
+                            Looking for a visionary Product Manager to lead our next-gen AI workspace. You'll be working directly with the CTO to define the roadmap for our core ML infrastructure...
+                        </p>
+</div>
+</div>
+</div>
+</div>
+<div class="px-10 pb-12 ios-safe-bottom flex items-center justify-between">
+<button class="w-16 h-16 rounded-full glass-card border-red-500/30 flex items-center justify-center group active:scale-90 transition-all">
+<span class="material-icons-outlined text-3xl text-red-500 group-hover:scale-110 transition-transform">close</span>
+</button>
+<button class="w-12 h-12 rounded-full glass-card flex items-center justify-center group active:scale-90 transition-all">
+<span class="material-icons-outlined text-xl text-slate-400 group-hover:text-white transition-colors">bookmark_border</span>
+</button>
+<button class="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 group active:scale-90 transition-all">
+<span class="material-icons-outlined text-3xl text-white group-hover:scale-110 transition-transform">check</span>
+</button>
+</div>
+<nav class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full px-6 py-2 flex items-center space-x-8">
+<span class="material-icons-outlined text-primary">explore</span>
+<span class="material-icons-outlined text-slate-500">description</span>
+<span class="material-icons-outlined text-slate-500">chat_bubble_outline</span>
+<span class="material-icons-outlined text-slate-500">settings</span>
+</nav>
+</div>
+
+</body></html>

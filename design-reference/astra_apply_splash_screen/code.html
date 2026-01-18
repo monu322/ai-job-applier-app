@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Astra Apply Splash Screen</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#3B82F6",
+                        "background-light": "#F8FAFC",
+                        "background-dark": "#020617",
+                    },
+                    fontFamily: {
+                        display: ["Outfit", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                    },
+                    animation: {
+                        'shimmer': 'shimmer 2s infinite linear',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        shimmer: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                },
+            },
+        };
+    </script>
+<style>
+        .star-field {
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 50px 160px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 80px 120px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 110px 210px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 150px 250px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 190px 40px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 230px 90px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 270px 180px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 310px 240px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 350px 50px, #ffffff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 400px 400px;
+            opacity: 0.3;
+        }
+        .gradient-text-shimmer {
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.8) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite linear;
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+        .glow-orb {
+            filter: blur(80px);
+            opacity: 0.4;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display overflow-hidden">
+<div class="fixed top-0 w-full px-8 py-3 flex justify-between items-center z-50 text-slate-900 dark:text-white">
+<span class="text-sm font-semibold">9:41</span>
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-[18px]">signal_cellular_alt</span>
+<span class="material-symbols-outlined text-[18px]">wifi</span>
+<span class="material-symbols-outlined text-[20px]">battery_full</span>
+</div>
+</div>
+<main class="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-slate-900 via-[#0a1128] to-black">
+<div class="absolute inset-0 star-field"></div>
+<div class="absolute top-1/4 -left-20 w-80 h-80 bg-blue-600 rounded-full glow-orb animate-pulse-slow"></div>
+<div class="absolute bottom-1/4 -right-20 w-80 h-80 bg-indigo-900 rounded-full glow-orb animate-pulse-slow"></div>
+<div class="relative flex flex-col items-center z-10 animate-float">
+<div class="relative w-24 h-24 mb-6">
+<div class="absolute inset-0 rounded-3xl bg-primary/20 blur-xl animate-pulse"></div>
+<div class="absolute -inset-2 border border-white/10 rounded-[2rem] rotate-45"></div>
+<div class="relative w-full h-full bg-gradient-to-br from-white to-blue-200 rounded-[1.5rem] flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.5)]">
+<span class="material-symbols-outlined text-background-dark text-5xl font-light">auto_awesome</span>
+</div>
+</div>
+<h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight mb-2">
+                Astra Apply
+            </h1>
+<div class="relative">
+<p class="text-lg md:text-xl text-blue-200/60 font-light tracking-widest uppercase">
+                    Your AI Job Agent
+                </p>
+<div class="absolute inset-0 text-lg md:text-xl text-white font-light tracking-widest uppercase opacity-0 gradient-text-shimmer pointer-events-none">
+                    Your AI Job Agent
+                </div>
+</div>
+</div>
+<div class="absolute bottom-24 w-48 h-[2px] bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary shadow-[0_0_10px_rgba(59,130,246,1)] animate-[shimmer_2s_infinite_ease-in-out]" style="width: 40%;"></div>
+</div>
+<div class="absolute bottom-12 flex flex-col items-center space-y-2">
+<p class="text-[10px] text-white/30 uppercase tracking-[0.2em] font-medium">
+                Premium Career Intelligence
+            </p>
+<div class="flex items-center space-x-2 text-white/20">
+<span class="material-symbols-outlined text-sm">lock</span>
+<span class="text-[10px] tracking-wider">Secure &amp; Encrypted</span>
+</div>
+</div>
+<div class="absolute top-0 right-0 w-64 h-64 bg-white/5 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/5 blur-[150px] rounded-full"></div>
+</main>
+<div class="fixed bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-white/20 rounded-full z-50"></div>
+<script>
+        // Optional: Simple logic to simulate loading progress
+        const progressBar = document.querySelector('.animate-\\[shimmer_2s_infinite_ease-in-out\\]');
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(interval);
+            }
+            progressBar.style.width = `${progress}%`;
+        }, 800);
+    </script>
+
+</body></html>
