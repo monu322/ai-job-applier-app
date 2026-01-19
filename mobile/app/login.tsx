@@ -8,7 +8,7 @@ import { useAuth } from '../lib/contexts/AuthContext';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login, isLoading } = useAuth();
+  const { login, signInWithGoogle, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -89,7 +89,8 @@ export default function LoginScreen() {
 
               {/* Google Login Button */}
               <TouchableOpacity
-                onPress={() => Alert.alert('Coming Soon', 'Google Sign-in will be available soon. See setup instructions in GOOGLE_OAUTH_SETUP.md')}
+                onPress={signInWithGoogle}
+                disabled={isLoading}
                 className="bg-white/5 border border-white/10 py-4 rounded-2xl mb-4"
                 activeOpacity={0.8}
               >

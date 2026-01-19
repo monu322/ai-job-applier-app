@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiClient } from '../api/apiClient';
+import { supabase } from '../supabaseClient';
 import { Alert } from 'react-native';
 
 interface User {
@@ -14,6 +15,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name?: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   error: string | null;
   clearError: () => void;
@@ -86,9 +88,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: typeof window !== 'undefined' 
+            ? window.location.origin 
+            : 'astraapply://auth/callback',
+        },
+      });
+      
+      if (error) throw error;
+      
+      // For web, this will redirect to Google
+      // For mobile, handle the callback
+      
+    } catch (err: any) {
+      const errorMessage = err.message || 'Google sign-in failed';
+      setError(errorMessage);
+      Alert.alert('Google Sign-in Error', errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     try {
       await apiClient.logout();
+      await supabase.auth.signOut();
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
@@ -106,6 +138,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!user,
         login,
         register,
+        signInWithGoogle,
         logout,
         error,
         clearError,
