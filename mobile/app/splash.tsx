@@ -46,19 +46,21 @@ export default function SplashScreen() {
       duration: 2000,
       easing: Easing.inOut(Easing.ease),
     });
+  }, []);
 
-    // Navigate after delay
-    const timer = setTimeout(() => {
-      if (!isLoading) {
+  // Separate effect for navigation that reacts to auth changes
+  useEffect(() => {
+    if (!isLoading) {
+      const timer = setTimeout(() => {
         if (isAuthenticated) {
           router.replace('/(tabs)');
         } else {
           router.replace('/login');
         }
-      }
-    }, 2500);
-
-    return () => clearTimeout(timer);
+      }, 2500);
+      
+      return () => clearTimeout(timer);
+    }
   }, [isLoading, isAuthenticated]);
 
   const floatStyle = useAnimatedStyle(() => ({
