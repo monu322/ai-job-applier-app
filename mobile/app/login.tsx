@@ -32,8 +32,8 @@ export default function LoginScreen() {
         colors={['#1E293B', '#0F172A', '#020617']}
         className="flex-1"
       >
-        <SafeAreaView edges={['top']} className="flex-1 px-6">
-          <View className="flex-1 justify-center">
+        <SafeAreaView edges={['top']} className="flex-1">
+          <View className="flex-1 justify-center px-8">
             <Text className="text-3xl font-bold text-white mb-2 text-center">
               Welcome Back
             </Text>
@@ -80,7 +80,7 @@ export default function LoginScreen() {
                 )}
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => router.push('/onboarding')}>
+              <TouchableOpacity onPress={() => router.push('/signup')}>
                 <Text className="text-slate-400 text-center mt-4">
                   Don't have an account?{' '}
                   <Text className="text-primary font-semibold">Sign up</Text>
