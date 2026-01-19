@@ -31,6 +31,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Check for existing session on mount
   useEffect(() => {
     checkAuth();
+    
+    // Listen for auth state changes (OAuth callbacks)
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[AUTH] Auth state changed:', event);
+      console.log('[AUTH] Session:', session);
+      
+      if (event === 'SIGNED_IN' && session) {
+        console.log('[AUTH] User signed in via OAuth');
+        const user = {
+          id: session.user.id,
+          email: session.user.email || '',
+        };
+        
+        // Save session data
+        await storage.setItem('auth_token', session.access_token);
+        await storage.setItem('user_data', JSON.stringify(user));
+        console.log('[AUTH] OAuth session saved');
+        
+        setUser(user);
+      } else if (event === 'SIGNED_OUT') {
+        console.log('[AUTH] User signed out');
+        setUser(null);
+        await storage.removeItem('auth_token');
+        await storage.removeItem('user_data');
+      }
+    });
+    
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
   }, []);
 
   const checkAuth = async () => {
