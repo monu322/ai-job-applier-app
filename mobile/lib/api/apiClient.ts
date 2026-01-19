@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { storage } from '../storage';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -17,7 +17,7 @@ class ApiClient {
     // Add request interceptor to include auth token
     this.client.interceptors.request.use(
       async (config) => {
-        const token = await AsyncStorage.getItem('auth_token');
+        const token = await storage.getItem('auth_token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -32,8 +32,8 @@ class ApiClient {
       async (error: AxiosError) => {
         if (error.response?.status === 401) {
           // Token expired, clear auth
-          await AsyncStorage.removeItem('auth_token');
-          await AsyncStorage.removeItem('user_data');
+          await storage.removeItem('auth_token');
+          await storage.removeItem('user_data');
         }
         return Promise.reject(this.formatError(error));
       }
@@ -67,9 +67,11 @@ class ApiClient {
       password,
     });
     // Store token
+    console.log('[API] Login response:', response.data);
     if (response.data.access_token) {
-      await AsyncStorage.setItem('auth_token', response.data.access_token);
-      await AsyncStorage.setItem('user_data', JSON.stringify(response.data.user));
+      await storage.setItem('auth_token', response.data.access_token);
+      await storage.setItem('user_data', JSON.stringify(response.data.user));
+      console.log('[API] Token and user data saved');
     }
     return response.data;
   }
@@ -78,8 +80,8 @@ class ApiClient {
     try {
       await this.client.post('/api/auth/logout');
     } finally {
-      await AsyncStorage.removeItem('auth_token');
-      await AsyncStorage.removeItem('user_data');
+      await storage.removeItem('auth_token');
+      await storage.removeItem('user_data');
     }
   }
 

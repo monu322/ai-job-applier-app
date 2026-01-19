@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiClient } from '../api/apiClient';
 import { supabase } from '../supabaseClient';
+import { storage } from '../storage';
 import { Alert } from 'react-native';
 
 interface User {
@@ -35,8 +35,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuth = async () => {
     try {
-      const token = await AsyncStorage.getItem('auth_token');
-      const userData = await AsyncStorage.getItem('user_data');
+      const token = await storage.getItem('auth_token');
+      const userData = await storage.getItem('user_data');
       
       console.log('[AUTH] Checking auth - Token exists:', !!token);
       console.log('[AUTH] User data:', userData);
@@ -88,8 +88,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(response.user);
       
       // Auto-login after registration
-      await AsyncStorage.setItem('auth_token', response.access_token);
-      await AsyncStorage.setItem('user_data', JSON.stringify(response.user));
+      await storage.setItem('auth_token', response.access_token);
+      await storage.setItem('user_data', JSON.stringify(response.user));
       
     } catch (err) {
       const errorMessage = typeof err === 'string' ? err : 'Registration failed. Please try again.';
