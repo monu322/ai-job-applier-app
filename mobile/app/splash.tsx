@@ -59,7 +59,7 @@ export default function SplashScreen() {
     }, 2500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isLoading, isAuthenticated]);
 
   const floatStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: floatAnim.value }],

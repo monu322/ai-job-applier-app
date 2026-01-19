@@ -20,7 +20,10 @@ export default function LoginScreen() {
 
     try {
       await login(email, password);
-      router.replace('/persona');
+      // Small delay to ensure auth state is updated
+      setTimeout(() => {
+        router.replace('/(tabs)');
+      }, 100);
     } catch (err) {
       // Error already shown by AuthContext
     }

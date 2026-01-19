@@ -61,8 +61,8 @@ Complete guide to enable Google Sign-in with Supabase.
    - Add: `https://your-project.supabase.co/auth/v1/callback`
 7. Click "Create"
 8. **Save these credentials:**
-   - Client ID: `1234567890-abc...apps.googleusercontent.com`
-   - Client Secret: `GOCSPX-abc...`
+   - Client ID: `727249825057-18rbgglfqhm0509gurk0uu4urv3pksnc.apps.googleusercontent.com`
+   - Client Secret: `GGOCSPX-1ipVCONw23g15y3wNNGN9Js0oZvC`
 
 ---
 
@@ -83,7 +83,7 @@ Complete guide to enable Google Sign-in with Supabase.
 
 The callback URL should be:
 ```
-https://your-project.supabase.co/auth/v1/callback
+https://pqxcncwkjsvoixaqrnhc.supabase.co/auth/v1/callback
 ```
 
 Make sure this is added to Google Cloud Console Authorized redirect URIs.
