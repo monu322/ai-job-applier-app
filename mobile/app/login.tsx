@@ -80,6 +80,25 @@ export default function LoginScreen() {
                 )}
               </TouchableOpacity>
 
+              {/* Divider */}
+              <View className="flex-row items-center my-6">
+                <View className="flex-1 h-[1px] bg-white/10" />
+                <Text className="text-slate-500 px-4 text-sm">OR</Text>
+                <View className="flex-1 h-[1px] bg-white/10" />
+              </View>
+
+              {/* Google Login Button */}
+              <TouchableOpacity
+                onPress={() => Alert.alert('Coming Soon', 'Google Sign-in will be available soon. See setup instructions in GOOGLE_OAUTH_SETUP.md')}
+                className="bg-white/5 border border-white/10 py-4 rounded-2xl mb-4"
+                activeOpacity={0.8}
+              >
+                <View className="flex-row items-center justify-center gap-3">
+                  <Ionicons name="logo-google" size={20} color="#DB4437" />
+                  <Text className="text-white font-semibold">Continue with Google</Text>
+                </View>
+              </TouchableOpacity>
+
               <TouchableOpacity onPress={() => router.push('/signup')}>
                 <Text className="text-slate-400 text-center mt-4">
                   Don't have an account?{' '}
