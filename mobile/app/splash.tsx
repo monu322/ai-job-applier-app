@@ -50,11 +50,16 @@ export default function SplashScreen() {
 
   // Separate effect for navigation that reacts to auth changes
   useEffect(() => {
+    console.log('[SPLASH] isLoading:', isLoading, 'isAuthenticated:', isAuthenticated);
+    
     if (!isLoading) {
       const timer = setTimeout(() => {
+        console.log('[SPLASH] Navigating - isAuthenticated:', isAuthenticated);
         if (isAuthenticated) {
+          console.log('[SPLASH] Redirecting to tabs');
           router.replace('/(tabs)');
         } else {
+          console.log('[SPLASH] Redirecting to login');
           router.replace('/login');
         }
       }, 2500);

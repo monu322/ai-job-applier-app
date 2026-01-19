@@ -38,13 +38,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const token = await AsyncStorage.getItem('auth_token');
       const userData = await AsyncStorage.getItem('user_data');
       
+      console.log('[AUTH] Checking auth - Token exists:', !!token);
+      console.log('[AUTH] User data:', userData);
+      
       if (token && userData) {
-        setUser(JSON.parse(userData));
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+        console.log('[AUTH] User authenticated:', parsedUser.email);
+      } else {
+        console.log('[AUTH] No authenticated user found');
       }
     } catch (err) {
-      console.error('Error checking auth:', err);
+      console.error('[AUTH] Error checking auth:', err);
     } finally {
       setIsLoading(false);
+      console.log('[AUTH] Auth check complete');
     }
   };
 
@@ -53,10 +61,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null);
       setIsLoading(true);
       
+      console.log('[AUTH] Attempting login for:', email);
       const response = await apiClient.login(email, password);
+      console.log('[AUTH] Login successful:', response.user);
+      
       setUser(response.user);
+      console.log('[AUTH] User state updated');
       
     } catch (err) {
+      console.error('[AUTH] Login error:', err);
       const errorMessage = typeof err === 'string' ? err : 'Login failed. Please check your credentials.';
       setError(errorMessage);
       Alert.alert('Login Error', errorMessage);
