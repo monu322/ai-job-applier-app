@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../lib/contexts/AuthContext';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -14,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function SplashScreen() {
   const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
   const floatAnim = useSharedValue(0);
   const glowAnim = useSharedValue(0);
   const progressAnim = useSharedValue(0);
@@ -47,7 +49,13 @@ export default function SplashScreen() {
 
     // Navigate after delay
     const timer = setTimeout(() => {
-      router.replace('/onboarding');
+      if (!isLoading) {
+        if (isAuthenticated) {
+          router.replace('/(tabs)');
+        } else {
+          router.replace('/login');
+        }
+      }
     }, 2500);
 
     return () => clearTimeout(timer);
