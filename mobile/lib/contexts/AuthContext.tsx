@@ -34,27 +34,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Listen for auth state changes (OAuth callbacks)
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[AUTH] ═══════════════════════════════');
       console.log('[AUTH] Auth state changed:', event);
-      console.log('[AUTH] Session:', session);
+      console.log('[AUTH] Has session:', !!session);
+      console.log('[AUTH] Session user:', session?.user);
+      console.log('[AUTH] Access token:', session?.access_token ? 'EXISTS' : 'NULL');
+      console.log('[AUTH] ═══════════════════════════════');
       
       if (event === 'SIGNED_IN' && session) {
-        console.log('[AUTH] User signed in via OAuth');
+        console.log('[AUTH] ✅ Processing SIGNED_IN event');
         const user = {
           id: session.user.id,
           email: session.user.email || '',
         };
         
+        console.log('[AUTH] Saving token to storage...');
         // Save session data
         await storage.setItem('auth_token', session.access_token);
         await storage.setItem('user_data', JSON.stringify(user));
-        console.log('[AUTH] OAuth session saved');
+        console.log('[AUTH] ✅ OAuth session saved successfully');
         
         setUser(user);
+        console.log('[AUTH] ✅ User state updated:', user.email);
       } else if (event === 'SIGNED_OUT') {
-        console.log('[AUTH] User signed out');
+        console.log('[AUTH] Processing SIGNED_OUT event');
         setUser(null);
         await storage.removeItem('auth_token');
         await storage.removeItem('user_data');
+      } else {
+        console.log('[AUTH] ⚠️ Unhandled event or no session');
       }
     });
     
@@ -136,21 +144,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null);
       setIsLoading(true);
       
+      const redirectUrl = typeof window !== 'undefined' ? window.location.origin : 'astraapply://auth/callback';
+      console.log('[AUTH] ═══════════════════════════════');
+      console.log('[AUTH] Starting Google OAuth flow');
+      console.log('[AUTH] Redirect URL:', redirectUrl);
+      console.log('[AUTH] Supabase URL:', process.env.EXPO_PUBLIC_SUPABASE_URL);
+      console.log('[AUTH] ═══════════════════════════════');
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: typeof window !== 'undefined' 
-            ? window.location.origin 
-            : 'astraapply://auth/callback',
+          redirectTo: redirectUrl,
         },
       });
       
-      if (error) throw error;
+      console.log('[AUTH] OAuth response data:', data);
+      console.log('[AUTH] OAuth error:', error);
       
+      if (error) {
+        console.error('[AUTH] OAuth error details:', error);
+        throw error;
+      }
+      
+      console.log('[AUTH] OAuth initiated - redirecting to Google...');
       // For web, this will redirect to Google
       // For mobile, handle the callback
       
     } catch (err: any) {
+      console.error('[AUTH] Google sign-in exception:', err);
       const errorMessage = err.message || 'Google sign-in failed';
       setError(errorMessage);
       Alert.alert('Google Sign-in Error', errorMessage);
