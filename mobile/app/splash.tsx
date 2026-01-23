@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function SplashScreen() {
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isProcessingOAuth } = useAuth();
   const floatAnim = useSharedValue(0);
   const glowAnim = useSharedValue(0);
   const progressAnim = useSharedValue(0);
@@ -50,23 +50,20 @@ export default function SplashScreen() {
 
   // Separate effect for navigation that reacts to auth changes
   useEffect(() => {
-    console.log('[SPLASH] isLoading:', isLoading, 'isAuthenticated:', isAuthenticated);
-    
-    if (!isLoading) {
+    // Wait for both auth check and OAuth processing to complete
+    if (!isLoading && !isProcessingOAuth) {
+      // Add a minimum display time for splash screen (at least 2 seconds)
       const timer = setTimeout(() => {
-        console.log('[SPLASH] Navigating - isAuthenticated:', isAuthenticated);
         if (isAuthenticated) {
-          console.log('[SPLASH] Redirecting to tabs');
           router.replace('/(tabs)');
         } else {
-          console.log('[SPLASH] Redirecting to login');
           router.replace('/login');
         }
-      }, 2500);
+      }, 2000); // Minimum 2 seconds display time
       
       return () => clearTimeout(timer);
     }
-  }, [isLoading, isAuthenticated]);
+  }, [isLoading, isAuthenticated, isProcessingOAuth]);
 
   const floatStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: floatAnim.value }],

@@ -1,35 +1,52 @@
-import { useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useUserStore, initializeMockProfile } from '../../lib/stores/userStore';
+import { useAuth } from '../../lib/contexts/AuthContext';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { apiClient } from '../../lib/api/apiClient';
 
 export default function ProfileScreen() {
-  const personas = useUserStore((state) => state.personas);
-  const masterUser = useUserStore((state) => state.masterUser);
+  const { user, logout } = useAuth();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [personas, setPersonas] = useState<any[]>([]);
 
-  // Initialize personas if not already done
   useEffect(() => {
-    if (personas.length === 0) {
-      initializeMockProfile();
-    }
-  }, [personas.length]);
+    checkPersonas();
+  }, []);
 
-  if (!masterUser) {
+  const checkPersonas = async () => {
+    try {
+      const personasData = await apiClient.getPersonas();
+      setPersonas(personasData);
+      
+      // If no personas, redirect to onboarding
+      if (!personasData || personasData.length === 0) {
+        router.replace('/onboarding');
+      }
+    } catch (error) {
+      console.error('Error fetching personas:', error);
+      // If error fetching personas (e.g., new user), redirect to onboarding
+      router.replace('/onboarding');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/login');
+  };
+
+  if (!user || isLoading) {
     return (
       <View className="flex-1 bg-midnight items-center justify-center">
         <Text className="text-white">Loading...</Text>
       </View>
     );
   }
-
-  // Calculate total stats across all personas
-  const totalMatches = personas.reduce((sum, p) => sum + p.globalMatches, 0);
-  const avgConfidence = personas.length > 0
-    ? personas.reduce((sum, p) => sum + p.confidence, 0) / personas.length
-    : 0;
-  const totalSkills = new Set(personas.flatMap(p => p.skills)).size;
 
   const settingsItems = [
     { icon: 'person-outline', label: 'Edit Profile', color: '#3B82F6' },
@@ -59,43 +76,27 @@ export default function ProfileScreen() {
           <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
             {/* User Info Card */}
             <View className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 mb-6">
-              <View className="flex-row items-center gap-4 mb-4">
+              <View className="flex-row items-center gap-4">
                 <View className="relative">
-                  <Image
-                    source={{ uri: masterUser.avatar }}
-                    className="w-20 h-20 rounded-2xl border border-white/10"
-                  />
+                  {user.avatar ? (
+                    <Image
+                      source={{ uri: user.avatar }}
+                      className="w-20 h-20 rounded-2xl border border-white/10"
+                    />
+                  ) : (
+                    <View className="w-20 h-20 rounded-2xl border border-white/10 bg-primary/20 items-center justify-center">
+                      <Ionicons name="person" size={40} color="#3B82F6" />
+                    </View>
+                  )}
                   <View className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-4 border-midnight rounded-full" />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-xl font-bold text-white mb-1">{masterUser.name}</Text>
-                  <Text className="text-sm text-primary mb-2">{masterUser.title}</Text>
+                  <Text className="text-xl font-bold text-white mb-1">{user.name || 'User'}</Text>
+                  <Text className="text-sm text-slate-400 mb-2">{user.email}</Text>
                   <View className="flex-row items-center gap-2">
-                    <Ionicons name="location" size={12} color="rgba(148, 163, 184, 0.6)" />
-                    <Text className="text-xs text-slate-400">{masterUser.location}</Text>
+                    <Ionicons name="checkmark-circle" size={14} color="#10B981" />
+                    <Text className="text-xs text-green-400">Account Active</Text>
                   </View>
-                </View>
-              </View>
-
-              {/* Quick Stats */}
-              <View className="flex-row justify-between pt-4 border-t border-white/5">
-                <View className="items-center">
-                  <Text className="text-2xl font-bold text-white">
-                    {totalMatches.toLocaleString()}
-                  </Text>
-                  <Text className="text-xs text-slate-400">Total Matches</Text>
-                </View>
-                <View className="items-center">
-                  <Text className="text-2xl font-bold text-gold">
-                    {avgConfidence.toFixed(1)}%
-                  </Text>
-                  <Text className="text-xs text-slate-400">Avg Confidence</Text>
-                </View>
-                <View className="items-center">
-                  <Text className="text-2xl font-bold text-primary">
-                    {personas.length}
-                  </Text>
-                  <Text className="text-xs text-slate-400">Personas</Text>
                 </View>
               </View>
             </View>
@@ -139,11 +140,11 @@ export default function ProfileScreen() {
             <TouchableOpacity
               className="bg-red-500/10 border border-red-500/20 rounded-2xl py-4 mb-8"
               activeOpacity={0.8}
-              onPress={() => alert('Logout - Coming soon!')}
+              onPress={handleLogout}
             >
               <View className="flex-row items-center justify-center gap-2">
                 <Ionicons name="log-out-outline" size={20} color="#EF4444" />
-                <Text className="text-red-400 font-bold">Sign Out</Text>
+                <Text className="text-red-400 font-bold">Log out</Text>
               </View>
             </TouchableOpacity>
 

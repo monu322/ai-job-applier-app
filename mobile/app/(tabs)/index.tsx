@@ -6,8 +6,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useJobStore } from '../../lib/stores/jobStore';
 import { useUserStore, initializeMockProfile } from '../../lib/stores/userStore';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../../lib/contexts/AuthContext';
 
 export default function HomeScreen() {
+  const { user } = useAuth();
   const jobs = useJobStore((state) => state.jobs);
   const personas = useUserStore((state) => state.personas);
   const activePersonaId = useUserStore((state) => state.activePersonaId);
@@ -58,14 +60,18 @@ export default function HomeScreen() {
               </View>
               <View className="flex-row items-center gap-4">
                 <Ionicons name="notifications-outline" size={24} color="rgba(255,255,255,0.7)" />
-                {profile && (
-                  <TouchableOpacity onPress={() => router.push('/persona')}>
+                <TouchableOpacity onPress={() => router.push('/(tabs)/profile')}>
+                  {user?.avatar ? (
                     <Image
-                      source={{ uri: profile.avatar }}
+                      source={{ uri: user.avatar }}
                       className="w-8 h-8 rounded-full border border-primary"
                     />
-                  </TouchableOpacity>
-                )}
+                  ) : (
+                    <View className="w-8 h-8 rounded-full border border-primary bg-primary/20 items-center justify-center">
+                      <Ionicons name="person" size={16} color="#3B82F6" />
+                    </View>
+                  )}
+                </TouchableOpacity>
               </View>
             </View>
 

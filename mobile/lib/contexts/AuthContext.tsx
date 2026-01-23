@@ -7,12 +7,15 @@ import { Alert } from 'react-native';
 interface User {
   id: string;
   email: string;
+  name?: string;
+  avatar?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isProcessingOAuth: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name?: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
@@ -26,6 +29,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProcessingOAuth, setIsProcessingOAuth] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Check for existing session on mount
@@ -34,35 +38,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Listen for auth state changes (OAuth callbacks)
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('[AUTH] ═══════════════════════════════');
-      console.log('[AUTH] Auth state changed:', event);
-      console.log('[AUTH] Has session:', !!session);
-      console.log('[AUTH] Session user:', session?.user);
-      console.log('[AUTH] Access token:', session?.access_token ? 'EXISTS' : 'NULL');
-      console.log('[AUTH] ═══════════════════════════════');
-      
       if (event === 'SIGNED_IN' && session) {
-        console.log('[AUTH] ✅ Processing SIGNED_IN event');
+        setIsProcessingOAuth(true);
+        
         const user = {
           id: session.user.id,
           email: session.user.email || '',
+          name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0],
+          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture,
         };
         
-        console.log('[AUTH] Saving token to storage...');
         // Save session data
         await storage.setItem('auth_token', session.access_token);
         await storage.setItem('user_data', JSON.stringify(user));
-        console.log('[AUTH] ✅ OAuth session saved successfully');
         
         setUser(user);
-        console.log('[AUTH] ✅ User state updated:', user.email);
+        setIsLoading(false);
+        setIsProcessingOAuth(false);
       } else if (event === 'SIGNED_OUT') {
-        console.log('[AUTH] Processing SIGNED_OUT event');
         setUser(null);
+        setIsProcessingOAuth(false);
         await storage.removeItem('auth_token');
         await storage.removeItem('user_data');
-      } else {
-        console.log('[AUTH] ⚠️ Unhandled event or no session');
+      } else if (event === 'INITIAL_SESSION') {
+        setIsLoading(false);
       }
     });
     
@@ -73,24 +72,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuth = async () => {
     try {
-      const token = await storage.getItem('auth_token');
-      const userData = await storage.getItem('user_data');
+      // Check Supabase session first for latest user data
+      const { data: { session } } = await supabase.auth.getSession();
       
-      console.log('[AUTH] Checking auth - Token exists:', !!token);
-      console.log('[AUTH] User data:', userData);
-      
-      if (token && userData) {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
-        console.log('[AUTH] User authenticated:', parsedUser.email);
+      if (session) {
+        // Use fresh session data with latest metadata
+        const user = {
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0],
+          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture,
+        };
+        
+        // Update storage with latest data
+        await storage.setItem('auth_token', session.access_token);
+        await storage.setItem('user_data', JSON.stringify(user));
+        
+        setUser(user);
       } else {
-        console.log('[AUTH] No authenticated user found');
+        // Fallback to storage if no session
+        const token = await storage.getItem('auth_token');
+        const userData = await storage.getItem('user_data');
+        
+        if (token && userData) {
+          const parsedUser = JSON.parse(userData);
+          setUser(parsedUser);
+        }
       }
     } catch (err) {
-      console.error('[AUTH] Error checking auth:', err);
+      console.error('Error checking auth:', err);
     } finally {
       setIsLoading(false);
-      console.log('[AUTH] Auth check complete');
     }
   };
 
@@ -99,15 +111,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null);
       setIsLoading(true);
       
-      console.log('[AUTH] Attempting login for:', email);
       const response = await apiClient.login(email, password);
-      console.log('[AUTH] Login successful:', response.user);
-      
       setUser(response.user);
-      console.log('[AUTH] User state updated');
       
     } catch (err) {
-      console.error('[AUTH] Login error:', err);
       const errorMessage = typeof err === 'string' ? err : 'Login failed. Please check your credentials.';
       setError(errorMessage);
       Alert.alert('Login Error', errorMessage);
@@ -143,37 +150,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setError(null);
       setIsLoading(true);
+      setIsProcessingOAuth(true);
       
       const redirectUrl = typeof window !== 'undefined' ? window.location.origin : 'astraapply://auth/callback';
-      console.log('[AUTH] ═══════════════════════════════');
-      console.log('[AUTH] Starting Google OAuth flow');
-      console.log('[AUTH] Redirect URL:', redirectUrl);
-      console.log('[AUTH] Supabase URL:', process.env.EXPO_PUBLIC_SUPABASE_URL);
-      console.log('[AUTH] ═══════════════════════════════');
       
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'select_account', // Force account selection screen
+          },
         },
       });
       
-      console.log('[AUTH] OAuth response data:', data);
-      console.log('[AUTH] OAuth error:', error);
-      
       if (error) {
-        console.error('[AUTH] OAuth error details:', error);
+        setIsProcessingOAuth(false);
         throw error;
       }
       
-      console.log('[AUTH] OAuth initiated - redirecting to Google...');
-      // For web, this will redirect to Google
-      // For mobile, handle the callback
-      
     } catch (err: any) {
-      console.error('[AUTH] Google sign-in exception:', err);
       const errorMessage = err.message || 'Google sign-in failed';
       setError(errorMessage);
+      setIsProcessingOAuth(false);
       Alert.alert('Google Sign-in Error', errorMessage);
       throw err;
     } finally {
@@ -200,6 +200,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isLoading,
         isAuthenticated: !!user,
+        isProcessingOAuth,
         login,
         register,
         signInWithGoogle,

@@ -38,11 +38,6 @@ export default function OnboardingScreen() {
     router.push('/cv-analysis');
   };
 
-  const handleLinkedIn = () => {
-    // Navigate to CV analysis (for demo)
-    router.push('/cv-analysis');
-  };
-
   return (
     <View className="flex-1 bg-midnight">
       <LinearGradient
@@ -116,12 +111,12 @@ export default function OnboardingScreen() {
 
             {/* Title and description */}
             <Text className="text-3xl font-bold text-center text-white leading-tight mb-4">
-              Apply to jobs worldwide{'\n'}with your personal{' '}
-              <Text className="text-primary">AI agent</Text>
+              Create your first{' '}
+              <Text className="text-primary">persona</Text>
             </Text>
             
             <Text className="text-sm text-slate-400 text-center max-w-[280px] mb-8">
-              Upload your CV. We analyze, match, and apply for you while you sleep.
+              Get started by uploading your CV and creating your first persona. Let our AI agent match you with jobs worldwide.
             </Text>
           </View>
 
@@ -129,23 +124,12 @@ export default function OnboardingScreen() {
           <View className="px-8 pb-8">
             <TouchableOpacity
               onPress={handleCVUpload}
-              className="w-full bg-gradient-to-r from-blue-700 to-primary py-5 rounded-2xl mb-4"
+              className="w-full bg-gradient-to-r from-blue-700 to-primary py-5 rounded-2xl mb-8"
               activeOpacity={0.8}
             >
               <View className="flex-row items-center justify-center gap-3">
                 <Ionicons name="cloud-upload" size={24} color="white" />
                 <Text className="text-white font-bold text-base">Upload Your CV</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={handleLinkedIn}
-              className="w-full bg-white/5 border border-white/10 py-4 rounded-2xl mb-8"
-              activeOpacity={0.8}
-            >
-              <View className="flex-row items-center justify-center gap-3">
-                <Ionicons name="logo-linkedin" size={20} color="#0A66C2" />
-                <Text className="text-slate-200 font-semibold">Import from LinkedIn</Text>
               </View>
             </TouchableOpacity>
 
