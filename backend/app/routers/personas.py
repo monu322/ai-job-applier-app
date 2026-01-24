@@ -79,11 +79,13 @@ async def create_persona(
 async def get_persona(
     persona_id: str,
     user_id: str = Depends(get_current_user_id),
-    supabase: Client = Depends(get_supabase)
+    supabase: Client = Depends(get_supabase),
+    admin_client: Client = Depends(get_supabase_admin)
 ):
     """Get a specific persona by ID"""
     try:
-        response = supabase.table("personas")\
+        # Use admin client to bypass RLS issues
+        response = admin_client.table("personas")\
             .select("*")\
             .eq("id", persona_id)\
             .eq("user_id", user_id)\
@@ -269,6 +271,13 @@ async def upload_cv_and_create_persona(
             "skills": parsed_data.get("skills", []),
             "salary_min": parsed_data.get("salary_min"),
             "salary_max": parsed_data.get("salary_max"),
+            "email": parsed_data.get("email"),
+            "phone": parsed_data.get("phone"),
+            "summary": parsed_data.get("summary"),
+            "roles": parsed_data.get("roles", []),
+            "job_search_location": parsed_data.get("job_search_location"),
+            "education": parsed_data.get("education"),
+            "work_history": parsed_data.get("work_history", []),
             "cv_file_name": file.filename,
             "cv_file_url": None,  # Will update after upload
             "is_active": is_first_persona,

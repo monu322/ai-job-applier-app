@@ -39,58 +39,62 @@ class CVParserService:
     
     async def parse_cv_with_openai(self, cv_text: str) -> dict:
         """
-        Parse CV text using OpenAI GPT-4 to extract structured information
+        Parse CV text using OpenAI GPT to extract comprehensive structured information
         """
         try:
             prompt = f"""
-            You are an expert CV/Resume parser. Extract the following information from the CV text below and return it as a JSON object.
-            
-            Extract:
-            - name: Full name of the person
-            - title: Current job title or desired position
-            - location: City and country (if available)
-            - experience_level: One of: 'Entry', 'Mid-Level', 'Senior', 'Lead', 'Executive'
-            - skills: Array of technical and soft skills (max 8 most important)
-            - salary_min: Estimated minimum salary in USD (based on experience and skills)
-            - salary_max: Estimated maximum salary in USD
-            
-            CV Text:
-            {cv_text}
-            
-            Return ONLY valid JSON in this exact format:
-            {{
-                "name": "string",
-                "title": "string",
-                "location": "string or null",
-                "experience_level": "string",
-                "skills": ["skill1", "skill2", ...],
-                "salary_min": number,
-                "salary_max": number
-            }}
-            """
+You are an expert CV/Resume parser. Extract the following information from the CV text provided below and return it as a JSON object with these exact keys:
+
+- name: Full name of the candidate
+- title: Professional title/role (e.g., "Senior Software Engineer")
+- email: Email address
+- phone: Phone number
+- experience: Years of experience (e.g., "5+ years", "3-5 years")
+- experience_level: One of: 'Entry', 'Mid-Level', 'Senior', 'Lead', 'Executive'
+- education: Highest degree and institution
+- skills: Array of technical skills (limit to top 10-15 most relevant)
+- roles: Array of job roles/titles the candidate should search for (e.g., ["Software Engineer", "Full Stack Developer", "Backend Engineer"])
+- job_search_location: Preferred job search location (city/country or "Remote" if mentioned, e.g., "London, UK", "Remote", "San Francisco, CA")
+- location: Current location (city and country if available)
+- summary: Professional summary (2-3 sentences describing the candidate's expertise and career highlights)
+- work_history: Array of objects with keys: company, position, duration, description, achievements (array of strings), start_date (YYYY-MM format), end_date (YYYY-MM format or "Present"), skills (array of relevant skills for that role)
+- salary_min: Estimated minimum salary in USD (based on experience and skills)
+- salary_max: Estimated maximum salary in USD
+
+If any field is not found in the CV, use null for that field. For work_history, include the most recent 3-4 positions.
+For roles, suggest 3-5 relevant job titles that match the candidate's experience and skills.
+For job_search_location, look for location preferences, current location, or infer from work history if explicitly mentioned.
+For achievements in work_history, extract 2-4 key accomplishments per role.
+
+CV Text:
+{cv_text}
+
+Return ONLY the JSON object, no additional text or explanation.
+"""
             
             response = self.client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "You are a professional CV parser that extracts structured data from resumes."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.3,
-                max_tokens=1000
+                max_tokens=2000
             )
             
             # Parse JSON from response
-            result_text = response.choices[0].message.content.strip()
+            content = response.choices[0].message.content.strip()
             
             # Remove markdown code blocks if present
-            if result_text.startswith("```json"):
-                result_text = result_text[7:]
-            if result_text.startswith("```"):
-                result_text = result_text[3:]
-            if result_text.endswith("```"):
-                result_text = result_text[:-3]
+            if content.startswith("```json"):
+                content = content[7:]
+            if content.startswith("```"):
+                content = content[3:]
+            if content.endswith("```"):
+                content = content[:-3]
+            content = content.strip()
             
-            parsed_data = json.loads(result_text.strip())
+            parsed_data = json.loads(content)
             
             # Validate required fields
             if not parsed_data.get("name") or not parsed_data.get("title"):

@@ -19,7 +19,7 @@ type AnalysisStep = {
   id: number;
   title: string;
   subtitle: string;
-  status: 'pending' | 'in-progress' | 'complete';
+  status: 'pending' | 'in-progress' | 'complete' | 'error';
 };
 
 export default function CVAnalysisScreen() {
@@ -64,9 +64,9 @@ export default function CVAnalysisScreen() {
     }
   }, []);
 
-  const updateStep = (stepId: number, status: AnalysisStep['status']) => {
+  const updateStep = (stepId: number, status: AnalysisStep['status'], subtitle?: string) => {
     setSteps(prev => prev.map(step => 
-      step.id === stepId ? { ...step, status } : step
+      step.id === stepId ? { ...step, status, ...(subtitle && { subtitle }) } : step
     ));
   };
 
@@ -140,7 +140,17 @@ export default function CVAnalysisScreen() {
         
       } catch (apiError: any) {
         console.error('API Error:', apiError);
-        setError(apiError.message || 'Failed to process CV');
+        const errorMessage = apiError.message || 'Failed to process CV';
+        setError(errorMessage);
+        
+        // Find the current step (first in-progress) and mark it as error
+        const currentStep = steps.find(s => s.status === 'in-progress');
+        if (currentStep) {
+          updateStep(currentStep.id, 'error', errorMessage);
+        }
+        
+        // Wait a bit to show the error
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Fall back to mock profile for demo
         Alert.alert(
@@ -149,14 +159,34 @@ export default function CVAnalysisScreen() {
           [
             {
               text: 'OK',
-              onPress: () => processMockCV(),
+              onPress: () => {
+                // Reset steps before starting mock CV
+                setSteps([
+                  { id: 1, title: 'Uploading CV', subtitle: 'Sending file to server', status: 'pending' },
+                  { id: 2, title: 'Building Persona', subtitle: 'Skills & experience mapped', status: 'pending' },
+                  { id: 3, title: 'Optimizing Profile', subtitle: 'Generating ATS-ready tags', status: 'pending' },
+                  { id: 4, title: 'Mapping Job Market', subtitle: 'Finding matches in 40+ countries', status: 'pending' },
+                ]);
+                setError(null);
+                processMockCV();
+              },
             },
           ]
         );
       }
     } catch (error: any) {
       console.error('Error processing CV:', error);
-      setError(error.message || 'Failed to process CV');
+      const errorMessage = error.message || 'Failed to process CV';
+      setError(errorMessage);
+      
+      // Find the current step (first in-progress) and mark it as error
+      const currentStep = steps.find(s => s.status === 'in-progress');
+      if (currentStep) {
+        updateStep(currentStep.id, 'error', errorMessage);
+      }
+      
+      // Wait a bit to show the error
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       Alert.alert(
         'Error',
@@ -169,7 +199,17 @@ export default function CVAnalysisScreen() {
           },
           {
             text: 'Demo Mode',
-            onPress: () => processMockCV(),
+            onPress: () => {
+              // Reset steps before starting mock CV
+              setSteps([
+                { id: 1, title: 'Uploading CV', subtitle: 'Sending file to server', status: 'pending' },
+                { id: 2, title: 'Building Persona', subtitle: 'Skills & experience mapped', status: 'pending' },
+                { id: 3, title: 'Optimizing Profile', subtitle: 'Generating ATS-ready tags', status: 'pending' },
+                { id: 4, title: 'Mapping Job Market', subtitle: 'Finding matches in 40+ countries', status: 'pending' },
+              ]);
+              setError(null);
+              processMockCV();
+            },
           },
         ]
       );
@@ -275,6 +315,10 @@ export default function CVAnalysisScreen() {
                   <View className="w-8 h-8 rounded-full bg-primary items-center justify-center shadow-lg shadow-primary/30">
                     <Ionicons name="checkmark" size={16} color="white" />
                   </View>
+                ) : step.status === 'error' ? (
+                  <View className="w-8 h-8 rounded-full bg-red-500/20 border-2 border-red-500 items-center justify-center shadow-lg shadow-red-500/30">
+                    <Ionicons name="close" size={16} color="#EF4444" />
+                  </View>
                 ) : step.status === 'in-progress' ? (
                   <View className="w-8 h-8 rounded-full bg-primary/20 border-2 border-primary items-center justify-center relative">
                     <Animated.View style={rotateStyle}>
@@ -288,10 +332,18 @@ export default function CVAnalysisScreen() {
                   </View>
                 )}
                 <View className="flex-1">
-                  <Text className={`text-sm font-semibold ${step.status === 'in-progress' ? 'text-primary' : 'text-white'}`}>
+                  <Text className={`text-sm font-semibold ${
+                    step.status === 'error' ? 'text-red-500' : 
+                    step.status === 'in-progress' ? 'text-primary' : 
+                    'text-white'
+                  }`}>
                     {step.title}
                   </Text>
-                  <Text className={`text-xs ${step.status === 'in-progress' ? 'text-primary/70' : 'text-slate-500'}`}>
+                  <Text className={`text-xs ${
+                    step.status === 'error' ? 'text-red-400' : 
+                    step.status === 'in-progress' ? 'text-primary/70' : 
+                    'text-slate-500'
+                  }`}>
                     {step.status === 'in-progress' ? `${step.subtitle}...` : step.subtitle}
                   </Text>
                 </View>

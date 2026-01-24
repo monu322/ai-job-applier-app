@@ -156,7 +156,7 @@ export default function HomeScreen() {
                   <TouchableOpacity
                     onPress={(e) => {
                       e.stopPropagation();
-                      router.push('/persona');
+                      router.push(`/persona?id=${profile.id}`);
                     }}
                     className="bg-primary/20 w-9 h-9 rounded-full items-center justify-center"
                   >

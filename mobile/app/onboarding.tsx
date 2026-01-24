@@ -95,7 +95,7 @@ export default function OnboardingScreen() {
           <View className="flex-row items-center justify-between px-6 mt-4 mb-4">
             {hasPersonas ? (
               <TouchableOpacity
-                onPress={() => router.back()}
+                onPress={() => router.replace('/(tabs)')}
                 className="w-10 h-10 rounded-full bg-white/5 border border-white/10 items-center justify-center"
               >
                 <Ionicons name="chevron-back" size={20} color="white" />

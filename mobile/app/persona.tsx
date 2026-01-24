@@ -1,17 +1,99 @@
-import { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView, Modal } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Image, ScrollView, Modal, ActivityIndicator } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useUserStore } from '../lib/stores/userStore';
+import { apiClient } from '../lib/api/apiClient';
+import type { UserProfile } from '../lib/types/user.types';
 
 export default function PersonaScreen() {
   const router = useRouter();
-  const profile = useUserStore((state) => state.getActivePersona());
+  const params = useLocalSearchParams();
+  const personaId = params.id as string;
+  
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+  const [expandedWorkItems, setExpandedWorkItems] = useState<Set<number>>(new Set());
+  
+  // Fallback to store if no ID provided (for backwards compatibility)
+  const storeProfile = useUserStore((state) => state.getActivePersona());
 
-  if (!profile) return null;
+  useEffect(() => {
+    const fetchPersona = async () => {
+      // If no ID, use store profile as fallback
+      if (!personaId) {
+        console.log('[Persona] No persona ID, using store profile');
+        setProfile(storeProfile);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        console.log('[Persona] Fetching persona:', personaId);
+        const data = await apiClient.getPersona(personaId);
+        console.log('[Persona] Fetched data:', data);
+        console.log('[Persona] Work history:', data.workHistory);
+        console.log('[Persona] Work history length:', data.workHistory?.length);
+        console.log('[Persona] Summary:', data.summary);
+        console.log('[Persona] Education:', data.education);
+        setProfile(data);
+      } catch (err: any) {
+        console.error('[Persona] Error fetching persona:', err);
+        setError(err.message || 'Failed to load persona');
+        // Fallback to store profile if API fails
+        setProfile(storeProfile);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPersona();
+  }, [personaId]);
+
+  if (loading) {
+    return (
+      <View className="flex-1 bg-midnight items-center justify-center">
+        <ActivityIndicator size="large" color="#3B82F6" />
+        <Text className="text-white mt-4">Loading persona...</Text>
+      </View>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <View className="flex-1 bg-midnight items-center justify-center px-6">
+        <Ionicons name="alert-circle" size={64} color="#EF4444" />
+        <Text className="text-white text-xl font-bold mt-4">Persona not found</Text>
+        <Text className="text-slate-400 text-center mt-2">
+          {error || 'Unable to load persona data'}
+        </Text>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="mt-6 px-6 py-3 bg-primary rounded-xl"
+        >
+          <Text className="text-white font-bold">Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const toggleWorkItem = (index: number) => {
+    setExpandedWorkItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  };
 
   const handleFindJobs = () => {
     router.push('/(tabs)');
@@ -131,6 +213,18 @@ export default function PersonaScreen() {
               </View>
             </View>
 
+            {/* Professional Summary */}
+            {profile.summary && (
+              <View className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 mb-4">
+                <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">
+                  Professional Summary
+                </Text>
+                <Text className="text-sm text-slate-300 leading-relaxed">
+                  {profile.summary}
+                </Text>
+              </View>
+            )}
+
             {/* Core Skills */}
             <View className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 mb-4">
               <View className="flex-row justify-between items-center mb-4">
@@ -152,6 +246,108 @@ export default function PersonaScreen() {
                 ))}
               </View>
             </View>
+
+            {/* Education */}
+            {profile.education && (
+              <View className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 mb-4">
+                <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">
+                  Education
+                </Text>
+                <Text className="text-sm text-slate-200 font-medium">
+                  {profile.education}
+                </Text>
+              </View>
+            )}
+
+            {/* Work History */}
+            {profile.workHistory && profile.workHistory.length > 0 && (
+              <View className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 mb-4">
+                <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">
+                  Work Experience
+                </Text>
+                <View className="space-y-3">
+                  {profile.workHistory.map((work, index) => {
+                    const isExpanded = expandedWorkItems.has(index);
+                    const dateRange = work.start_date && work.end_date 
+                      ? `${work.start_date} - ${work.end_date}`
+                      : work.duration || '';
+                    
+                    return (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => toggleWorkItem(index)}
+                        activeOpacity={0.7}
+                        className="bg-white/5 border border-white/5 rounded-xl p-4"
+                      >
+                        <View className="flex-row justify-between items-start mb-2">
+                          <View className="flex-1 pr-3">
+                            <Text className="text-white font-bold text-sm mb-1">
+                              {work.company}
+                            </Text>
+                            <Text className="text-primary font-medium text-xs">
+                              {work.position}
+                            </Text>
+                          </View>
+                          <View className="flex-row items-center gap-2">
+                            <Ionicons 
+                              name={isExpanded ? "chevron-up" : "chevron-down"} 
+                              size={18} 
+                              color="rgba(148, 163, 184, 0.6)" 
+                            />
+                          </View>
+                        </View>
+                        
+                        {dateRange && (
+                          <Text className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+                            {dateRange}
+                          </Text>
+                        )}
+                        
+                        {isExpanded && (
+                          <View className="mt-4 pt-4 border-t border-white/5">
+                            {work.achievements && work.achievements.length > 0 && (
+                              <View className="mb-3">
+                                <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">
+                                  Key Achievements
+                                </Text>
+                                {work.achievements.map((achievement, achIndex) => (
+                                  <View key={achIndex} className="flex-row gap-2 mb-1.5">
+                                    <Text className="text-primary text-xs mt-0.5">•</Text>
+                                    <Text className="flex-1 text-slate-300 text-xs leading-relaxed">
+                                      {achievement}
+                                    </Text>
+                                  </View>
+                                ))}
+                              </View>
+                            )}
+                            
+                            {work.skills && work.skills.length > 0 && (
+                              <View>
+                                <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">
+                                  Technologies Used
+                                </Text>
+                                <View className="flex-row flex-wrap gap-1.5">
+                                  {work.skills.map((skill, skillIndex) => (
+                                    <View 
+                                      key={skillIndex}
+                                      className="px-2 py-1 rounded-lg bg-white/5 border border-white/5"
+                                    >
+                                      <Text className="text-[10px] font-semibold text-slate-400">
+                                        {skill}
+                                      </Text>
+                                    </View>
+                                  ))}
+                                </View>
+                              </View>
+                            )}
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
 
             {/* AI Intelligence Card */}
             <View className="bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-2xl p-5 mb-4">

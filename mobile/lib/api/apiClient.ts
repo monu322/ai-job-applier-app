@@ -26,14 +26,37 @@ class ApiClient {
       (error) => Promise.reject(error)
     );
 
-    // Add response interceptor for error handling
+    // Add response interceptor for error handling and token refresh
     this.client.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
-        if (error.response?.status === 401) {
-          // Token expired, clear auth
-          await storage.removeItem('auth_token');
-          await storage.removeItem('user_data');
+        const originalRequest = error.config as any;
+        
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+          
+          try {
+            // Try to refresh the token using Supabase
+            const { supabase } = await import('../supabaseClient');
+            const { data: { session }, error: refreshError } = await supabase.auth.refreshSession();
+            
+            if (session && !refreshError) {
+              // Save new token
+              await storage.setItem('auth_token', session.access_token);
+              
+              // Retry the original request with new token
+              originalRequest.headers.Authorization = `Bearer ${session.access_token}`;
+              return this.client(originalRequest);
+            } else {
+              // Refresh failed, clear auth
+              await storage.removeItem('auth_token');
+              await storage.removeItem('user_data');
+            }
+          } catch (refreshErr) {
+            // Refresh failed, clear auth
+            await storage.removeItem('auth_token');
+            await storage.removeItem('user_data');
+          }
         }
         return Promise.reject(this.formatError(error));
       }
@@ -123,7 +146,47 @@ class ApiClient {
 
   async getPersona(id: string) {
     const response = await this.client.get(`/api/personas/${id}`);
-    return response.data;
+    const persona = response.data;
+    
+    console.log('[API Client] Raw persona from backend:', persona);
+    console.log('[API Client] workHistory field (camelCase):', persona.workHistory);
+    console.log('[API Client] workHistory type:', typeof persona.workHistory);
+    console.log('[API Client] workHistory is array:', Array.isArray(persona.workHistory));
+    
+    // Backend sends camelCase due to Pydantic aliases - read them correctly
+    const transformed = {
+      id: persona.id,
+      name: persona.name,
+      title: persona.title,
+      location: persona.location || '',
+      avatar: persona.avatar || `https://i.pravatar.cc/300?u=${persona.id}`,
+      experience: persona.experience || 'Mid-Level',
+      salaryRange: {
+        min: persona.salaryMin || 0,
+        max: persona.salaryMax || 0,
+      },
+      skills: persona.skills || [],
+      resume: persona.cvFileName ? {
+        fileName: persona.cvFileName,
+        uploadedAt: new Date(persona.createdAt),
+      } : undefined,
+      marketDemand: persona.marketDemand || 'medium',
+      globalMatches: persona.globalMatches || 0,
+      confidence: persona.confidence || 0,
+      // New CV fields - backend sends these in camelCase!
+      email: persona.email || undefined,
+      phone: persona.phone || undefined,
+      summary: persona.summary || undefined,
+      roles: persona.roles || undefined,
+      jobSearchLocation: persona.jobSearchLocation || undefined,
+      education: persona.education || undefined,
+      workHistory: persona.workHistory || undefined,
+    };
+    
+    console.log('[API Client] Transformed persona:', transformed);
+    console.log('[API Client] Transformed workHistory:', transformed.workHistory);
+    
+    return transformed;
   }
 
   async updatePersona(id: string, data: any) {

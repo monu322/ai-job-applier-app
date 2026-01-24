@@ -1,3 +1,14 @@
+export interface WorkHistoryItem {
+  company: string;
+  position: string;
+  duration?: string;
+  description?: string;
+  achievements?: string[];
+  start_date?: string;
+  end_date?: string;
+  skills?: string[];
+}
+
 export interface UserProfile {
   id: string;
   name: string;
@@ -17,4 +28,11 @@ export interface UserProfile {
   marketDemand: 'low' | 'medium' | 'high';
   globalMatches: number;
   confidence: number;
+  email?: string;
+  phone?: string;
+  summary?: string;
+  roles?: string[];
+  jobSearchLocation?: string;
+  education?: string;
+  workHistory?: WorkHistoryItem[];
 }
