@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useJobStore } from '../../lib/stores/jobStore';
-import { useUserStore, initializeMockProfile } from '../../lib/stores/userStore';
-import { useRouter } from 'expo-router';
+import { useUserStore } from '../../lib/stores/userStore';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '../../lib/contexts/AuthContext';
+import { apiClient } from '../../lib/api/apiClient';
+import { useCallback } from 'react';
 
 export default function HomeScreen() {
   const { user } = useAuth();
@@ -17,13 +19,58 @@ export default function HomeScreen() {
   const profile = useUserStore((state) => state.getActivePersona());
   const router = useRouter();
   const [showPersonaSelector, setShowPersonaSelector] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize personas if not already done
-  useEffect(() => {
-    if (personas.length === 0) {
-      initializeMockProfile();
+  // Re-check personas every time screen gains focus
+  useFocusEffect(
+    useCallback(() => {
+      checkPersonas();
+    }, [])
+  );
+
+  const checkPersonas = async () => {
+    setIsLoading(true);
+    try {
+      // First check if personas exist in store
+      if (personas.length > 0) {
+        console.log('[Home] Personas already loaded in store:', personas.length);
+        setIsLoading(false);
+        return;
+      }
+
+      // If not in store, fetch from API
+      console.log('[Home] Fetching personas from API...');
+      const personasData = await apiClient.getPersonas();
+      
+      console.log('[Home] Personas fetched:', personasData);
+      
+      // If no personas, redirect to onboarding
+      if (!personasData || personasData.length === 0) {
+        console.log('[Home] No personas found, redirecting to onboarding');
+        setIsLoading(false);
+        router.replace('/onboarding');
+        return;
+      }
+      
+      console.log('[Home] Personas found:', personasData.length);
+      
+      // Store personas in the store
+      useUserStore.getState().setPersonas(personasData);
+      
+    } catch (error) {
+      console.error('[Home] Error fetching personas:', error);
+      // Only redirect if local store is also empty (truly new user)
+      if (personas.length === 0) {
+        console.log('[Home] Error and no local personas, redirecting to onboarding');
+        router.replace('/onboarding');
+      } else {
+        console.log('[Home] Error but has local personas, staying on home');
+        // Has local personas, stay on home page
+      }
+    } finally {
+      setIsLoading(false);
     }
-  }, [personas.length]);
+  };
 
   // Mock application stats (will be from store later)
   const applicationStats = {

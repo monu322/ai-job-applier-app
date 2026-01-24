@@ -93,7 +93,27 @@ class ApiClient {
   // Persona methods
   async getPersonas() {
     const response = await this.client.get('/api/personas');
-    return response.data;
+    // Transform backend response to frontend format
+    return response.data.map((persona: any) => ({
+      id: persona.id,
+      name: persona.name,
+      title: persona.title,
+      location: persona.location || '',
+      avatar: persona.avatar_url || `https://i.pravatar.cc/300?u=${persona.id}`,
+      experience: persona.experience_level || 'Mid-Level',
+      salaryRange: {
+        min: persona.salary_min || 0,
+        max: persona.salary_max || 0,
+      },
+      skills: persona.skills || [],
+      resume: persona.cv_file_name ? {
+        fileName: persona.cv_file_name,
+        uploadedAt: new Date(persona.created_at),
+      } : undefined,
+      marketDemand: persona.market_demand || 'medium',
+      globalMatches: persona.global_matches || 0,
+      confidence: persona.confidence_score || 0,
+    }));
   }
 
   async createPersona(personaData: any) {
@@ -118,6 +138,18 @@ class ApiClient {
 
   async activatePersona(id: string) {
     const response = await this.client.patch(`/api/personas/${id}/activate`);
+    return response.data;
+  }
+
+  async uploadCv(file: File | Blob) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await this.client.post('/api/personas/upload-cv', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   }
 

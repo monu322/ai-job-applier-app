@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,12 +12,15 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useUserStore } from '../lib/stores/userStore';
+import * as DocumentPicker from 'expo-document-picker';
+import { useState } from 'react';
 
 export default function OnboardingScreen() {
   const router = useRouter();
   const personas = useUserStore((state) => state.personas);
   const hasPersonas = personas.length > 0;
   const floatAnim = useSharedValue(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Float animation
   floatAnim.value = withRepeat(
@@ -33,9 +36,47 @@ export default function OnboardingScreen() {
     transform: [{ translateY: floatAnim.value }],
   }));
 
-  const handleCVUpload = () => {
-    // Navigate to CV analysis
-    router.push('/cv-analysis');
+  const handleCVUpload = async () => {
+    try {
+      setIsUploading(true);
+      
+      // Pick document
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword', 'text/plain'],
+        copyToCacheDirectory: true,
+      });
+
+      if (result.canceled) {
+        setIsUploading(false);
+        return;
+      }
+
+      const file = result.assets[0];
+      
+      // Validate file size (max 5MB)
+      if (file.size && file.size > 5 * 1024 * 1024) {
+        Alert.alert('File too large', 'Please select a file smaller than 5MB');
+        setIsUploading(false);
+        return;
+      }
+
+      // Navigate to CV analysis with file data
+      router.push({
+        pathname: '/cv-analysis',
+        params: {
+          fileName: file.name,
+          fileUri: file.uri,
+          fileType: file.mimeType,
+          fileSize: file.size,
+        },
+      });
+      
+      setIsUploading(false);
+    } catch (error) {
+      console.error('Error picking document:', error);
+      Alert.alert('Error', 'Failed to pick document. Please try again.');
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -124,12 +165,22 @@ export default function OnboardingScreen() {
           <View className="px-8 pb-8">
             <TouchableOpacity
               onPress={handleCVUpload}
-              className="w-full bg-gradient-to-r from-blue-700 to-primary py-5 rounded-2xl mb-8"
+              disabled={isUploading}
+              className={`w-full py-5 rounded-2xl mb-8 ${isUploading ? 'bg-slate-700' : 'bg-gradient-to-r from-blue-700 to-primary'}`}
               activeOpacity={0.8}
             >
               <View className="flex-row items-center justify-center gap-3">
-                <Ionicons name="cloud-upload" size={24} color="white" />
-                <Text className="text-white font-bold text-base">Upload Your CV</Text>
+                {isUploading ? (
+                  <>
+                    <Ionicons name="sync" size={24} color="white" />
+                    <Text className="text-white font-bold text-base">Selecting File...</Text>
+                  </>
+                ) : (
+                  <>
+                    <Ionicons name="cloud-upload" size={24} color="white" />
+                    <Text className="text-white font-bold text-base">Upload Your CV</Text>
+                  </>
+                )}
               </View>
             </TouchableOpacity>
 

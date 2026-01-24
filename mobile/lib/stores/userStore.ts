@@ -9,10 +9,12 @@ interface UserState {
   isOnboarded: boolean;
   setMasterUser: (user: UserProfile) => void;
   addPersona: (profile: UserProfile) => void;
+  setPersonas: (personas: UserProfile[]) => void;
   setActivePersona: (id: string) => void;
   setOnboarded: (value: boolean) => void;
   updatePersona: (id: string, updates: Partial<UserProfile>) => void;
   getActivePersona: () => UserProfile | null;
+  clearPersonas: () => void;
 }
 
 export const useUserStore = create<UserState>((set, get) => ({
@@ -26,6 +28,12 @@ export const useUserStore = create<UserState>((set, get) => ({
       personas: [...state.personas, profile],
       activePersonaId: state.activePersonaId || profile.id,
     })),
+  setPersonas: (personas) =>
+    set((state) => ({
+      personas,
+      activePersonaId: personas.length > 0 ? (state.activePersonaId || personas[0].id) : null,
+      isOnboarded: personas.length > 0,
+    })),
   setActivePersona: (id) => set({ activePersonaId: id }),
   setOnboarded: (value) => set({ isOnboarded: value }),
   updatePersona: (id, updates) =>
@@ -38,6 +46,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     const state = get();
     return state.personas.find((p) => p.id === state.activePersonaId) || null;
   },
+  clearPersonas: () => set({ personas: [], activePersonaId: null, isOnboarded: false }),
 }));
 
 // Helper function to initialize mock personas

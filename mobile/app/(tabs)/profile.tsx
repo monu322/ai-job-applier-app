@@ -4,43 +4,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../lib/contexts/AuthContext';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { apiClient } from '../../lib/api/apiClient';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [personas, setPersonas] = useState<any[]>([]);
-
-  useEffect(() => {
-    checkPersonas();
-  }, []);
-
-  const checkPersonas = async () => {
-    try {
-      const personasData = await apiClient.getPersonas();
-      setPersonas(personasData);
-      
-      // If no personas, redirect to onboarding
-      if (!personasData || personasData.length === 0) {
-        router.replace('/onboarding');
-      }
-    } catch (error) {
-      console.error('Error fetching personas:', error);
-      // If error fetching personas (e.g., new user), redirect to onboarding
-      router.replace('/onboarding');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleLogout = async () => {
     await logout();
     router.replace('/login');
   };
 
-  if (!user || isLoading) {
+  if (!user) {
     return (
       <View className="flex-1 bg-midnight items-center justify-center">
         <Text className="text-white">Loading...</Text>

@@ -3,6 +3,7 @@ import { apiClient } from '../api/apiClient';
 import { supabase } from '../supabaseClient';
 import { storage } from '../storage';
 import { Alert } from 'react-native';
+import { useUserStore } from '../stores/userStore';
 
 interface User {
   id: string;
@@ -53,6 +54,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await storage.setItem('user_data', JSON.stringify(user));
         
         setUser(user);
+        
+        // Fetch personas after OAuth sign-in
+        try {
+          const personas = await apiClient.getPersonas();
+          console.log('[Auth] Fetched personas after OAuth:', personas);
+          useUserStore.getState().setPersonas(personas);
+        } catch (personaErr) {
+          console.error('[Auth] Error fetching personas after OAuth:', personaErr);
+          // Don't block OAuth if persona fetch fails
+        }
+        
         setIsLoading(false);
         setIsProcessingOAuth(false);
       } else if (event === 'SIGNED_OUT') {
@@ -89,6 +101,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await storage.setItem('user_data', JSON.stringify(user));
         
         setUser(user);
+        
+        // Fetch personas on app startup if user is authenticated
+        try {
+          const personas = await apiClient.getPersonas();
+          console.log('[Auth] Fetched personas on startup:', personas);
+          useUserStore.getState().setPersonas(personas);
+        } catch (personaErr) {
+          console.error('[Auth] Error fetching personas on startup:', personaErr);
+          // Don't block auth check if persona fetch fails
+        }
       } else {
         // Fallback to storage if no session
         const token = await storage.getItem('auth_token');
@@ -97,6 +119,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (token && userData) {
           const parsedUser = JSON.parse(userData);
           setUser(parsedUser);
+          
+          // Fetch personas if user data exists
+          try {
+            const personas = await apiClient.getPersonas();
+            console.log('[Auth] Fetched personas from storage auth:', personas);
+            useUserStore.getState().setPersonas(personas);
+          } catch (personaErr) {
+            console.error('[Auth] Error fetching personas from storage auth:', personaErr);
+            // Don't block auth check if persona fetch fails
+          }
         }
       }
     } catch (err) {
@@ -113,6 +145,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const response = await apiClient.login(email, password);
       setUser(response.user);
+      
+      // Fetch personas after successful login
+      try {
+        const personas = await apiClient.getPersonas();
+        console.log('[Auth] Fetched personas after login:', personas);
+        useUserStore.getState().setPersonas(personas);
+      } catch (personaErr) {
+        console.error('[Auth] Error fetching personas after login:', personaErr);
+        // Don't block login if persona fetch fails
+      }
       
     } catch (err) {
       const errorMessage = typeof err === 'string' ? err : 'Login failed. Please check your credentials.';
@@ -135,6 +177,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Auto-login after registration
       await storage.setItem('auth_token', response.access_token);
       await storage.setItem('user_data', JSON.stringify(response.user));
+      
+      // Fetch personas after successful registration (likely empty for new users)
+      try {
+        const personas = await apiClient.getPersonas();
+        console.log('[Auth] Fetched personas after registration:', personas);
+        useUserStore.getState().setPersonas(personas);
+      } catch (personaErr) {
+        console.error('[Auth] Error fetching personas after registration:', personaErr);
+        // Don't block registration if persona fetch fails
+      }
       
     } catch (err) {
       const errorMessage = typeof err === 'string' ? err : 'Registration failed. Please try again.';
@@ -189,6 +241,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Logout error:', err);
     } finally {
       setUser(null);
+      // Clear personas from store on logout
+      useUserStore.getState().clearPersonas();
     }
   };
 

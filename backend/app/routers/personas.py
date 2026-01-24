@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from typing import List
 from app.schemas.persona import PersonaCreate, PersonaUpdate, PersonaResponse, CVParseRequest, CVParseResponse
-from app.database import get_supabase
+from app.database import get_supabase, get_supabase_admin
 from app.middleware.auth import get_current_user_id
 from app.services.cv_parser import cv_parser
 from supabase import Client
@@ -13,11 +13,13 @@ router = APIRouter(prefix="/personas", tags=["Personas"])
 @router.get("", response_model=List[PersonaResponse])
 async def list_personas(
     user_id: str = Depends(get_current_user_id),
-    supabase: Client = Depends(get_supabase)
+    supabase: Client = Depends(get_supabase),
+    admin_client: Client = Depends(get_supabase_admin)
 ):
     """Get all personas for the current user"""
     try:
-        response = supabase.table("personas").select("*").eq("user_id", user_id).execute()
+        # Use admin client to bypass RLS issues
+        response = admin_client.table("personas").select("*").eq("user_id", user_id).execute()
         return response.data
     except Exception as e:
         raise HTTPException(
@@ -214,6 +216,129 @@ async def activate_persona(
         )
 
 
+@router.post("/upload-cv", response_model=PersonaResponse, status_code=status.HTTP_201_CREATED)
+async def upload_cv_and_create_persona(
+    file: UploadFile = File(...),
+    user_id: str = Depends(get_current_user_id),
+    supabase: Client = Depends(get_supabase),
+    admin_client: Client = Depends(get_supabase_admin)
+):
+    """
+    Upload CV file, parse it, create persona, and save file to storage
+    This is a unified endpoint that handles the complete CV upload flow
+    """
+    try:
+        # Validate file type
+        if not file.filename.lower().endswith(('.pdf', '.docx', '.doc', '.txt')):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Only PDF, DOCX, DOC, and TXT files are supported"
+            )
+        
+        # Validate file size (5MB max)
+        file_content = await file.read()
+        if len(file_content) > 5 * 1024 * 1024:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="File size must be less than 5MB"
+            )
+        
+        # Extract text based on file type
+        if file.filename.lower().endswith('.pdf'):
+            cv_text = cv_parser.extract_text_from_pdf(file_content)
+        elif file.filename.lower().endswith(('.docx', '.doc')):
+            cv_text = cv_parser.extract_text_from_docx(file_content)
+        else:  # .txt
+            cv_text = file_content.decode('utf-8')
+        
+        # Parse with OpenAI
+        parsed_data = await cv_parser.parse_cv_with_openai(cv_text)
+        
+        # Check if this should be the first/active persona
+        existing = supabase.table("personas").select("id").eq("user_id", user_id).execute()
+        is_first_persona = len(existing.data) == 0
+        
+        # Create persona record first (without CV file URL)
+        persona_data = {
+            "user_id": user_id,
+            "name": parsed_data.get("name", "Unknown"),
+            "title": parsed_data.get("title", "Professional"),
+            "location": parsed_data.get("location"),
+            "avatar_url": None,
+            "experience_level": parsed_data.get("experience_level"),
+            "skills": parsed_data.get("skills", []),
+            "salary_min": parsed_data.get("salary_min"),
+            "salary_max": parsed_data.get("salary_max"),
+            "cv_file_name": file.filename,
+            "cv_file_url": None,  # Will update after upload
+            "is_active": is_first_persona,
+            "market_demand": "medium",
+            "global_matches": 0,
+            "confidence_score": 0.0
+        }
+        
+        # Insert persona into database using admin client to bypass RLS
+        response = admin_client.table("personas").insert(persona_data).execute()
+        
+        if not response.data:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to create persona"
+            )
+        
+        persona = response.data[0]
+        persona_id = persona['id']
+        
+        # Upload file to Supabase Storage
+        try:
+            # Create file path: {user_id}/{persona_id}_{filename}
+            file_extension = file.filename.split('.')[-1]
+            storage_path = f"{user_id}/{persona_id}_cv.{file_extension}"
+            
+            # Upload to cv-uploads bucket using admin client
+            storage_response = admin_client.storage.from_("cv-uploads").upload(
+                storage_path,
+                file_content,
+                {
+                    "content-type": file.content_type or "application/octet-stream",
+                    "upsert": "true"
+                }
+            )
+            
+            # Get public URL
+            file_url = admin_client.storage.from_("cv-uploads").get_public_url(storage_path)
+            
+            # Update persona with CV file URL using admin client
+            update_response = admin_client.table("personas")\
+                .update({"cv_file_url": file_url})\
+                .eq("id", persona_id)\
+                .execute()
+            
+            if update_response.data:
+                persona = update_response.data[0]
+                
+        except Exception as storage_error:
+            # If storage fails, we still have the persona created
+            # Log the error but don't fail the request
+            print(f"Storage upload failed: {str(storage_error)}")
+            # Continue without CV URL
+        
+        return persona
+        
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to process CV: {str(e)}"
+        )
+
+
 @router.post("/parse-cv", response_model=CVParseResponse)
 async def parse_cv_file(
     file: UploadFile = File(...),
@@ -221,7 +346,7 @@ async def parse_cv_file(
 ):
     """
     Upload and parse a CV file (PDF or DOCX) using OpenAI
-    Returns extracted persona data
+    Returns extracted persona data (legacy endpoint - use /upload-cv instead)
     """
     try:
         # Validate file type

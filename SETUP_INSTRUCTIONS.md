@@ -29,6 +29,52 @@ After running the migration, verify:
 1. Tables exist: Go to **Table Editor** and confirm `personas`, `jobs`, and `applications` tables are present
 2. RLS is enabled: Check that Row Level Security is enabled on `personas` and `applications` tables
 
+### Set Up Storage for CV Files
+
+1. Go to your Supabase Dashboard: https://supabase.com/dashboard
+2. Select your project: `pqxcncwkjsvoixaqrnhc`
+3. Navigate to **Storage** in the left sidebar
+4. Click **Create a new bucket**
+5. Configure the bucket:
+   - **Name**: `cv-uploads`
+   - **Public bucket**: OFF (keep private)
+   - Click **Create bucket**
+
+6. Set up Storage Policies:
+   - Click on the `cv-uploads` bucket
+   - Go to **Policies** tab
+   - Click **New Policy**
+   
+   **Policy 1: Allow users to upload their own CVs**
+   ```sql
+   CREATE POLICY "Users can upload own CVs"
+   ON storage.objects FOR INSERT
+   WITH CHECK (
+     bucket_id = 'cv-uploads' 
+     AND (storage.foldername(name))[1] = auth.uid()::text
+   );
+   ```
+   
+   **Policy 2: Allow users to view their own CVs**
+   ```sql
+   CREATE POLICY "Users can view own CVs"
+   ON storage.objects FOR SELECT
+   USING (
+     bucket_id = 'cv-uploads' 
+     AND (storage.foldername(name))[1] = auth.uid()::text
+   );
+   ```
+   
+   **Policy 3: Allow users to delete their own CVs**
+   ```sql
+   CREATE POLICY "Users can delete own CVs"
+   ON storage.objects FOR DELETE
+   USING (
+     bucket_id = 'cv-uploads' 
+     AND (storage.foldername(name))[1] = auth.uid()::text
+   );
+   ```
+
 ## Environment Variables
 
 Both backend and mobile are already configured:

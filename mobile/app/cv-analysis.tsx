@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
@@ -13,11 +13,29 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { initializeMockProfile } from '../lib/stores/userStore';
+import { apiClient } from '../lib/api/apiClient';
+
+type AnalysisStep = {
+  id: number;
+  title: string;
+  subtitle: string;
+  status: 'pending' | 'in-progress' | 'complete';
+};
 
 export default function CVAnalysisScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
   const floatAnim = useSharedValue(0);
   const scanAnim = useSharedValue(0);
+  
+  const [steps, setSteps] = useState<AnalysisStep[]>([
+    { id: 1, title: 'Uploading CV', subtitle: 'Sending file to server', status: 'pending' },
+    { id: 2, title: 'Building Persona', subtitle: 'Skills & experience mapped', status: 'pending' },
+    { id: 3, title: 'Optimizing Profile', subtitle: 'Generating ATS-ready tags', status: 'pending' },
+    { id: 4, title: 'Mapping Job Market', subtitle: 'Finding matches in 40+ countries', status: 'pending' },
+  ]);
+  
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Float animation for the CV
@@ -37,14 +55,126 @@ export default function CVAnalysisScreen() {
       false
     );
 
-    // Initialize profile and navigate after analysis
-    const timer = setTimeout(() => {
-      initializeMockProfile();
-      router.replace('/persona');
-    }, 4000);
-
-    return () => clearTimeout(timer);
+    // Start the upload and analysis process
+    if (params.fileUri) {
+      processCV();
+    } else {
+      // No file, use mock data for demo
+      processMockCV();
+    }
   }, []);
+
+  const updateStep = (stepId: number, status: AnalysisStep['status']) => {
+    setSteps(prev => prev.map(step => 
+      step.id === stepId ? { ...step, status } : step
+    ));
+  };
+
+  const processMockCV = async () => {
+    // Simulate step-by-step progress
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    updateStep(1, 'in-progress');
+    
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    updateStep(1, 'complete');
+    updateStep(2, 'in-progress');
+    
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    updateStep(2, 'complete');
+    updateStep(3, 'in-progress');
+    
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    updateStep(3, 'complete');
+    updateStep(4, 'in-progress');
+    
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    updateStep(4, 'complete');
+    
+    // Initialize profile and navigate
+    await new Promise(resolve => setTimeout(resolve, 500));
+    initializeMockProfile();
+    router.replace('/persona');
+  };
+
+  const processCV = async () => {
+    try {
+      // Step 1: Uploading CV
+      updateStep(1, 'in-progress');
+      
+      try {
+        // Prepare file for upload using blob
+        const response = await fetch(params.fileUri as string);
+        const blob = await response.blob();
+        
+        const file = new File([blob], params.fileName as string, {
+          type: params.fileType as string || 'application/pdf',
+        });
+        
+        // Upload CV - this now handles parsing AND persona creation
+        const persona = await apiClient.uploadCv(file);
+        
+        // Update step 1 subtitle to show upload complete
+        setSteps(prev => prev.map(step => 
+          step.id === 1 ? { ...step, status: 'complete', subtitle: 'Upload complete' } : step
+        ));
+        
+        updateStep(2, 'in-progress');
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Step 2: Building Persona (already done by backend)
+        updateStep(2, 'complete');
+        updateStep(3, 'in-progress');
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Step 3: Optimizing Profile (already done by backend)
+        updateStep(3, 'complete');
+        updateStep(4, 'in-progress');
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Step 4: Complete
+        updateStep(4, 'complete');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Navigate to persona page
+        router.replace('/persona');
+        
+      } catch (apiError: any) {
+        console.error('API Error:', apiError);
+        setError(apiError.message || 'Failed to process CV');
+        
+        // Fall back to mock profile for demo
+        Alert.alert(
+          'Demo Mode',
+          'CV parsing is not available. Using demo profile instead.',
+          [
+            {
+              text: 'OK',
+              onPress: () => processMockCV(),
+            },
+          ]
+        );
+      }
+    } catch (error: any) {
+      console.error('Error processing CV:', error);
+      setError(error.message || 'Failed to process CV');
+      
+      Alert.alert(
+        'Error',
+        'Failed to process your CV. Would you like to try demo mode?',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => router.back(),
+            style: 'cancel',
+          },
+          {
+            text: 'Demo Mode',
+            onPress: () => processMockCV(),
+          },
+        ]
+      );
+    }
+  };
 
   const floatStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: floatAnim.value }],
@@ -52,6 +182,10 @@ export default function CVAnalysisScreen() {
 
   const scanStyle = useAnimatedStyle(() => ({
     top: `${scanAnim.value * 100}%`,
+  }));
+
+  const rotateStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${scanAnim.value * 360}deg` }],
   }));
 
   return (
@@ -67,7 +201,10 @@ export default function CVAnalysisScreen() {
 
           {/* Header */}
           <View className="flex-row items-center justify-between px-6 py-4">
-            <TouchableOpacity className="w-10 h-10 rounded-full bg-white/5 border border-white/10 items-center justify-center">
+            <TouchableOpacity 
+              onPress={() => router.back()}
+              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 items-center justify-center"
+            >
               <Ionicons name="chevron-back" size={20} color="white" />
             </TouchableOpacity>
             
@@ -132,50 +269,34 @@ export default function CVAnalysisScreen() {
 
           {/* Progress Steps */}
           <View className="px-6 pb-10 space-y-6">
-            {/* Step 1 - Complete */}
-            <View className="flex-row items-center gap-4">
-              <View className="w-8 h-8 rounded-full bg-primary items-center justify-center shadow-lg shadow-primary/30">
-                <Ionicons name="checkmark" size={16} color="white" />
+            {steps.map((step) => (
+              <View key={step.id} className={`flex-row items-center gap-4 ${step.status === 'pending' ? 'opacity-40' : ''}`}>
+                {step.status === 'complete' ? (
+                  <View className="w-8 h-8 rounded-full bg-primary items-center justify-center shadow-lg shadow-primary/30">
+                    <Ionicons name="checkmark" size={16} color="white" />
+                  </View>
+                ) : step.status === 'in-progress' ? (
+                  <View className="w-8 h-8 rounded-full bg-primary/20 border-2 border-primary items-center justify-center relative">
+                    <Animated.View style={rotateStyle}>
+                      <Ionicons name="sync" size={16} color="#3B82F6" />
+                    </Animated.View>
+                    <View className="absolute -inset-1 border border-primary/50 rounded-full animate-pulse" />
+                  </View>
+                ) : (
+                  <View className="w-8 h-8 rounded-full bg-slate-800 items-center justify-center">
+                    <View className="w-2 h-2 bg-slate-400 rounded-full" />
+                  </View>
+                )}
+                <View className="flex-1">
+                  <Text className={`text-sm font-semibold ${step.status === 'in-progress' ? 'text-primary' : 'text-white'}`}>
+                    {step.title}
+                  </Text>
+                  <Text className={`text-xs ${step.status === 'in-progress' ? 'text-primary/70' : 'text-slate-500'}`}>
+                    {step.status === 'in-progress' ? `${step.subtitle}...` : step.subtitle}
+                  </Text>
+                </View>
               </View>
-              <View className="flex-1">
-                <Text className="text-sm font-semibold text-white">Reading CV</Text>
-                <Text className="text-xs text-slate-500">Extraction complete</Text>
-              </View>
-            </View>
-
-            {/* Step 2 - Complete */}
-            <View className="flex-row items-center gap-4">
-              <View className="w-8 h-8 rounded-full bg-primary items-center justify-center shadow-lg shadow-primary/30">
-                <Ionicons name="checkmark" size={16} color="white" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-sm font-semibold text-white">Building Persona</Text>
-                <Text className="text-xs text-slate-500">Skills & experience mapped</Text>
-              </View>
-            </View>
-
-            {/* Step 3 - In Progress */}
-            <View className="flex-row items-center gap-4">
-              <View className="w-8 h-8 rounded-full bg-primary/20 border-2 border-primary items-center justify-center relative">
-                <Ionicons name="sync" size={16} color="#3B82F6" className="animate-spin" />
-                <View className="absolute -inset-1 border border-primary/50 rounded-full animate-pulse" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-sm font-semibold text-primary">Optimizing Profile</Text>
-                <Text className="text-xs text-primary/70">Generating ATS-ready tags...</Text>
-              </View>
-            </View>
-
-            {/* Step 4 - Pending */}
-            <View className="flex-row items-center gap-4 opacity-40">
-              <View className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 items-center justify-center">
-                <View className="w-2 h-2 bg-slate-400 rounded-full" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-sm font-semibold text-white">Mapping Job Market</Text>
-                <Text className="text-xs text-slate-500">Finding matches in 40+ countries</Text>
-              </View>
-            </View>
+            ))}
 
             {/* Disabled button */}
             <View className="mt-8">
