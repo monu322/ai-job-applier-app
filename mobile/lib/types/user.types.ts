@@ -9,6 +9,11 @@ export interface WorkHistoryItem {
   skills?: string[];
 }
 
+export interface ImprovementItem {
+  title: string;
+  description: string;
+}
+
 export interface UserProfile {
   id: string;
   name: string;
@@ -35,4 +40,6 @@ export interface UserProfile {
   jobSearchLocation?: string;
   education?: string;
   workHistory?: WorkHistoryItem[];
+  gender?: string;
+  areasOfImprovement?: ImprovementItem[];
 }

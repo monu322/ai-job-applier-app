@@ -14,6 +14,11 @@ class WorkHistoryItem(BaseModel):
     skills: List[str] = []
 
 
+class ImprovementItem(BaseModel):
+    title: str
+    description: str
+
+
 class PersonaBase(BaseModel):
     name: str
     title: str
@@ -29,6 +34,8 @@ class PersonaBase(BaseModel):
     roles: List[str] = []
     job_search_location: Optional[str] = Field(None, alias="jobSearchLocation")
     education: Optional[str] = None
+    gender: Optional[str] = None
+    areas_of_improvement: List[Dict[str, str]] = Field(default_factory=list, alias="areasOfImprovement")
     
     class Config:
         populate_by_name = True
@@ -57,6 +64,8 @@ class PersonaUpdate(BaseModel):
     job_search_location: Optional[str] = None
     education: Optional[str] = None
     work_history: Optional[List[Dict[str, Any]]] = None
+    gender: Optional[str] = None
+    areas_of_improvement: Optional[List[Dict[str, str]]] = None
 
 
 class PersonaResponse(PersonaBase):
@@ -98,3 +107,5 @@ class CVParseResponse(BaseModel):
     job_search_location: Optional[str] = None
     education: Optional[str] = None
     work_history: List[Dict[str, Any]] = []
+    gender: Optional[str] = None
+    areas_of_improvement: List[Dict[str, str]] = []

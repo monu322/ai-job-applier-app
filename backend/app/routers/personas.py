@@ -278,6 +278,8 @@ async def upload_cv_and_create_persona(
             "job_search_location": parsed_data.get("job_search_location"),
             "education": parsed_data.get("education"),
             "work_history": parsed_data.get("work_history", []),
+            "gender": parsed_data.get("gender"),
+            "areas_of_improvement": parsed_data.get("areas_of_improvement", []),
             "cv_file_name": file.filename,
             "cv_file_url": None,  # Will update after upload
             "is_active": is_first_persona,

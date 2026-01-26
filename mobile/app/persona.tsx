@@ -42,6 +42,9 @@ export default function PersonaScreen() {
         console.log('[Persona] Work history length:', data.workHistory?.length);
         console.log('[Persona] Summary:', data.summary);
         console.log('[Persona] Education:', data.education);
+        console.log('[Persona] Gender:', data.gender);
+        console.log('[Persona] Areas of Improvement:', data.areasOfImprovement);
+        console.log('[Persona] Areas of Improvement length:', data.areasOfImprovement?.length);
         setProfile(data);
       } catch (err: any) {
         console.error('[Persona] Error fetching persona:', err);
@@ -166,7 +169,7 @@ export default function PersonaScreen() {
                     <View className="flex-row items-center">
                       <Ionicons name="location" size={14} color="rgba(148, 163, 184, 0.5)" />
                       <Text className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
-                        {profile.location}
+                        {profile.location || 'UNKNOWN'}
                       </Text>
                     </View>
                     <View className="h-3 w-[1px] bg-white/10" />
@@ -181,38 +184,6 @@ export default function PersonaScreen() {
               </View>
             </View>
 
-            {/* Stats Grid */}
-            <View className="flex-row gap-4 mb-4">
-              <View className="flex-1 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
-                <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">
-                  Salary Estimate
-                </Text>
-                <Text className="text-lg font-bold text-white tracking-tight">
-                  ${profile.salaryRange.min / 1000}K - ${profile.salaryRange.max / 1000}K
-                </Text>
-                <View className="mt-2 h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                  <View className="h-full w-3/4 bg-gold/40 rounded-full" />
-                </View>
-              </View>
-
-              <View className="flex-1 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
-                <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">
-                  Market Demand
-                </Text>
-                <View className="flex-row items-center gap-1.5">
-                  <Text className="text-lg font-bold text-white tracking-tight capitalize">
-                    {profile.marketDemand}
-                  </Text>
-                  <View className="flex-row gap-1 ml-auto">
-                    <View className="w-1.5 h-3 bg-primary rounded-full" />
-                    <View className="w-1.5 h-4 bg-primary rounded-full" />
-                    <View className="w-1.5 h-5 bg-primary rounded-full" />
-                    <View className="w-1.5 h-3 bg-white/10 rounded-full" />
-                  </View>
-                </View>
-              </View>
-            </View>
-
             {/* Professional Summary */}
             {profile.summary && (
               <View className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 mb-4">
@@ -222,6 +193,30 @@ export default function PersonaScreen() {
                 <Text className="text-sm text-slate-300 leading-relaxed">
                   {profile.summary}
                 </Text>
+              </View>
+            )}
+
+            {/* Suitable Roles */}
+            {profile.roles && profile.roles.length > 0 && (
+              <View className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 mb-4">
+                <View className="flex-row justify-between items-center mb-4">
+                  <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    Suitable Roles
+                  </Text>
+                  <Text className="text-[10px] font-bold text-gold px-2 py-0.5 rounded-md bg-gold/10">
+                    {profile.roles.length} Matches
+                  </Text>
+                </View>
+                <View className="flex-row flex-wrap gap-2">
+                  {profile.roles.map((role, index) => (
+                    <View
+                      key={index}
+                      className="px-3 py-2 rounded-xl bg-gradient-to-r from-gold/10 to-primary/10 border border-gold/20"
+                    >
+                      <Text className="text-xs font-semibold text-gold">{role}</Text>
+                    </View>
+                  ))}
+                </View>
               </View>
             )}
 
@@ -265,19 +260,20 @@ export default function PersonaScreen() {
                 <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">
                   Work Experience
                 </Text>
-                <View className="space-y-3">
+                <View>
                   {profile.workHistory.map((work, index) => {
                     const isExpanded = expandedWorkItems.has(index);
                     const dateRange = work.start_date && work.end_date 
                       ? `${work.start_date} - ${work.end_date}`
                       : work.duration || '';
+                    const isLast = index === profile.workHistory!.length - 1;
                     
                     return (
                       <TouchableOpacity
                         key={index}
                         onPress={() => toggleWorkItem(index)}
                         activeOpacity={0.7}
-                        className="bg-white/5 border border-white/5 rounded-xl p-4"
+                        className={isLast ? "" : "mb-4 pb-4 border-b border-white/5"}
                       >
                         <View className="flex-row justify-between items-start mb-2">
                           <View className="flex-1 pr-3">
@@ -349,51 +345,100 @@ export default function PersonaScreen() {
               </View>
             )}
 
-            {/* AI Intelligence Card */}
-            <View className="bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-2xl p-5 mb-4">
-              <View className="flex-row items-center gap-3 mb-6">
-                <View className="w-8 h-8 rounded-xl bg-primary/20 items-center justify-center">
-                  <Ionicons name="sparkles" size={20} color="#3B82F6" />
+            {/* AI CV Insights & Areas of Improvement */}
+            {profile.areasOfImprovement && profile.areasOfImprovement.length > 0 ? (
+              <View className="bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-2xl p-5 mb-4">
+                <View className="flex-row items-center gap-3 mb-4">
+                  <View className="w-8 h-8 rounded-xl bg-primary/20 items-center justify-center">
+                    <Ionicons name="sparkles" size={20} color="#3B82F6" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="font-bold text-sm text-white">AI CV Insights</Text>
+                    <Text className="text-[10px] text-slate-400 font-medium">
+                      Personalized recommendations to strengthen your profile
+                    </Text>
+                  </View>
                 </View>
+
                 <View>
-                  <Text className="font-bold text-sm text-white">AI Global Intelligence</Text>
-                  <Text className="text-[10px] text-slate-400 font-medium">
-                    Real-time matching engine active
+                  {profile.areasOfImprovement.map((improvement, index) => {
+                    const isLast = index === profile.areasOfImprovement!.length - 1;
+                    return (
+                      <View 
+                        key={index} 
+                        className={isLast ? "" : "mb-4 pb-4 border-b border-white/10"}
+                      >
+                        <View className="flex-row items-start gap-3">
+                          <View className="w-6 h-6 rounded-full bg-primary/20 items-center justify-center shrink-0 mt-0.5">
+                            <Text className="text-primary text-xs font-bold">{index + 1}</Text>
+                          </View>
+                          <View className="flex-1">
+                            <Text className="text-white font-bold text-sm mb-1">
+                              {improvement.title}
+                            </Text>
+                            <Text className="text-slate-300 text-xs leading-relaxed">
+                              {improvement.description}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    );
+                  })}
+                </View>
+
+                <View className="flex-row items-center gap-2 mt-4 pt-4 border-t border-white/10">
+                  <Ionicons name="bulb" size={16} color="#3B82F6" />
+                  <Text className="text-[10px] font-bold text-primary uppercase tracking-wider flex-1">
+                    Implementing these suggestions can boost your match rate
                   </Text>
                 </View>
               </View>
-
-              <View className="pb-4 border-b border-white/5 mb-4">
-                <View className="flex-row items-end justify-between">
-                  <View>
-                    <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">
-                      Global Matches
+            ) : (
+              <View className="bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-2xl p-5 mb-4">
+                <View className="flex-row items-center gap-3 mb-4">
+                  <View className="w-8 h-8 rounded-xl bg-primary/20 items-center justify-center">
+                    <Ionicons name="sparkles" size={20} color="#3B82F6" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="font-bold text-sm text-white">AI Global Intelligence</Text>
+                    <Text className="text-[10px] text-slate-400 font-medium">
+                      Real-time matching engine active
                     </Text>
-                    <View className="flex-row items-center gap-2">
-                      <Text className="text-3xl font-bold text-gold tracking-tighter">
-                        {profile.globalMatches.toLocaleString()}
+                  </View>
+                </View>
+
+                <View className="pb-4 border-b border-white/5 mb-4">
+                  <View className="flex-row items-end justify-between">
+                    <View>
+                      <Text className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">
+                        Global Matches
                       </Text>
-                      <Text className="text-gold/60 text-xs font-bold mb-1">+</Text>
+                      <View className="flex-row items-center gap-2">
+                        <Text className="text-3xl font-bold text-gold tracking-tighter">
+                          {profile.globalMatches.toLocaleString()}
+                        </Text>
+                        <Text className="text-gold/60 text-xs font-bold mb-1">+</Text>
+                      </View>
+                    </View>
+                    <View className="text-right">
+                      <Text className="text-[10px] font-bold text-slate-500 uppercase mb-1">
+                        Confidence
+                      </Text>
+                      <Text className="text-sm font-bold text-white">{profile.confidence}%</Text>
                     </View>
                   </View>
-                  <View className="text-right">
-                    <Text className="text-[10px] font-bold text-slate-500 uppercase mb-1">
-                      Confidence
-                    </Text>
-                    <Text className="text-sm font-bold text-white">{profile.confidence}%</Text>
-                  </View>
                 </View>
-              </View>
 
-              <View className="flex-row items-center gap-3 py-3 px-4 bg-gold/10 rounded-2xl border border-gold/20">
-                <View className="w-6 h-6 rounded-full bg-gold/20 items-center justify-center shrink-0">
-                  <Ionicons name="globe" size={14} color="#F59E0B" />
+                <View className="flex-row items-center gap-3 py-3 px-4 bg-gold/10 rounded-2xl border border-gold/20">
+                  <View className="w-6 h-6 rounded-full bg-gold/20 items-center justify-center shrink-0">
+                    <Ionicons name="globe" size={14} color="#F59E0B" />
+                  </View>
+                  <Text className="text-[11px] font-bold text-gold uppercase tracking-wider leading-tight">
+                    Visa-friendly roles detected in 14 regions
+                  </Text>
                 </View>
-                <Text className="text-[11px] font-bold text-gold uppercase tracking-wider leading-tight">
-                  Visa-friendly roles detected in 14 regions
-                </Text>
               </View>
-            </View>
+            )}
 
             <View className="h-32" />
           </ScrollView>

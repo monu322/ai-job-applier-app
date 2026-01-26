@@ -55,16 +55,24 @@ You are an expert CV/Resume parser. Extract the following information from the C
 - skills: Array of technical skills (limit to top 10-15 most relevant)
 - roles: Array of job roles/titles the candidate should search for (e.g., ["Software Engineer", "Full Stack Developer", "Backend Engineer"])
 - job_search_location: Preferred job search location (city/country or "Remote" if mentioned, e.g., "London, UK", "Remote", "San Francisco, CA")
-- location: Current location (city and country if available)
+- location: Current location (city and country if available). If not explicitly mentioned in the CV, try to infer from the phone number's country code (e.g., +44 = UK, +1 = USA/Canada, +91 = India, +61 = Australia, etc.). If location cannot be determined from either CV text or phone number, use null.
 - summary: Professional summary (2-3 sentences describing the candidate's expertise and career highlights)
-- work_history: Array of objects with keys: company, position, duration, description, achievements (array of strings), start_date (YYYY-MM format), end_date (YYYY-MM format or "Present"), skills (array of relevant skills for that role)
+- work_history: Array of objects with keys: company, position, duration, description, achievements (array of strings), start_date (YYYY-MM format), end_date (YYYY-MM format or "Present"), skills (array of relevant skills for that role). IMPORTANT: Include ALL work experiences from the CV, not just recent ones. For each role, carefully extract ONLY the achievements that are specifically mentioned for that particular position/company.
 - salary_min: Estimated minimum salary in USD (based on experience and skills)
 - salary_max: Estimated maximum salary in USD
+- gender: Inferred gender based on the candidate's name (use "male", "female", or null if uncertain)
+- areas_of_improvement: Array of 3-5 actionable improvement suggestions for the CV. Each item should be an object with keys: "title" (short heading like "Add Quantifiable Achievements") and "description" (1-2 sentences explaining the improvement and why it matters)
 
-If any field is not found in the CV, use null for that field. For work_history, include the most recent 3-4 positions.
+If any field is not found in the CV, use null for that field. 
+For work_history: 
+  - Include ALL work experiences from the CV (not just 3-4 most recent)
+  - For each position, carefully match achievements to the specific role by looking at bullet points under each job
+  - Only include achievements explicitly stated for that role to avoid mixing up accomplishments between different positions
+  - Extract 2-4 key accomplishments per role if available
 For roles, suggest 3-5 relevant job titles that match the candidate's experience and skills.
 For job_search_location, look for location preferences, current location, or infer from work history if explicitly mentioned.
-For achievements in work_history, extract 2-4 key accomplishments per role.
+For gender, infer from the first name using common naming patterns. Only use "male" or "female" if you're reasonably confident, otherwise use null.
+For areas_of_improvement, analyze the CV for missing elements, weak areas, or opportunities to strengthen the profile. Focus on actionable suggestions like: adding metrics/numbers, highlighting leadership, improving summary, adding certifications, showcasing projects, or better skill presentation.
 
 CV Text:
 {cv_text}

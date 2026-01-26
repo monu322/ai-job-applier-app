@@ -135,8 +135,9 @@ export default function CVAnalysisScreen() {
         updateStep(4, 'complete');
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Navigate to persona page
-        router.replace('/persona');
+        // Navigate to the newly created persona page with the ID
+        console.log('[CV Analysis] Created persona:', persona);
+        router.replace(`/persona?id=${persona.id}`);
         
       } catch (apiError: any) {
         console.error('API Error:', apiError);

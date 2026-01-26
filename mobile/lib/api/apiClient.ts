@@ -149,6 +149,8 @@ class ApiClient {
     const persona = response.data;
     
     console.log('[API Client] Raw persona from backend:', persona);
+    console.log('[API Client] gender:', persona.gender);
+    console.log('[API Client] areasOfImprovement:', persona.areasOfImprovement);
     console.log('[API Client] workHistory field (camelCase):', persona.workHistory);
     console.log('[API Client] workHistory type:', typeof persona.workHistory);
     console.log('[API Client] workHistory is array:', Array.isArray(persona.workHistory));
@@ -181,6 +183,9 @@ class ApiClient {
       jobSearchLocation: persona.jobSearchLocation || undefined,
       education: persona.education || undefined,
       workHistory: persona.workHistory || undefined,
+      // Gender and areas of improvement fields
+      gender: persona.gender || undefined,
+      areasOfImprovement: persona.areasOfImprovement || undefined,
     };
     
     console.log('[API Client] Transformed persona:', transformed);

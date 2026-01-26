@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useUserStore } from '../../lib/stores/userStore';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -21,6 +22,9 @@ export default function MarketScreen() {
   const mapScale = useSharedValue(1);
   const mapX = useSharedValue(0);
   const mapY = useSharedValue(0);
+  
+  // Get active persona data
+  const activePersona = useUserStore((state) => state.getActivePersona());
 
   const locations = ['Worldwide', 'USA', 'UK', 'Germany', 'UAE', 'India', 'Australia'];
 
@@ -162,6 +166,40 @@ export default function MarketScreen() {
 
           {/* Bottom Cards */}
           <View className="px-6 pb-28 space-y-4">
+            {/* Persona Salary & Market Demand */}
+            {activePersona && (
+              <View className="flex-row gap-4 mb-4">
+                <View className="flex-1 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
+                  <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">
+                    Your Salary Estimate
+                  </Text>
+                  <Text className="text-lg font-bold text-white tracking-tight">
+                    ${activePersona.salaryRange.min / 1000}K - ${activePersona.salaryRange.max / 1000}K
+                  </Text>
+                  <View className="mt-2 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                    <View className="h-full w-3/4 bg-gold/40 rounded-full" />
+                  </View>
+                </View>
+
+                <View className="flex-1 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
+                  <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">
+                    Market Demand
+                  </Text>
+                  <View className="flex-row items-center gap-1.5">
+                    <Text className="text-lg font-bold text-white tracking-tight capitalize">
+                      {activePersona.marketDemand}
+                    </Text>
+                    <View className="flex-row gap-1 ml-auto">
+                      <View className="w-1.5 h-3 bg-primary rounded-full" />
+                      <View className="w-1.5 h-4 bg-primary rounded-full" />
+                      <View className="w-1.5 h-5 bg-primary rounded-full" />
+                      <View className="w-1.5 h-3 bg-white/10 rounded-full" />
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )}
+
             <View className="flex-row gap-3">
               <View className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-4">
                 <View className="flex-row items-center justify-between mb-3">
